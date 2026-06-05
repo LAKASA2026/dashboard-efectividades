@@ -10,6 +10,26 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Nunito',-apple-system,Arial,sans-serif;background:#f0efe9;color:#1a2332;font-weight:400;-webkit-font-smoothing:antialiased;}
+/* LOGIN OVERLAY */
+#login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#001464 0%,#001a7d 55%,#002499 100%);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
+#login-box{background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,100,.35);text-align:center;}
+#login-logo{font-size:28px;font-weight:900;color:#001464;letter-spacing:-1px;margin-bottom:2px;}
+#login-sub{font-size:10px;color:#8a9ab0;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:24px;}
+#login-title{font-size:17px;font-weight:800;color:#001464;margin-bottom:6px;}
+#login-desc{font-size:11px;color:#8a9ab0;margin-bottom:28px;line-height:1.5;}
+#login-box label{display:block;font-size:10px;font-weight:700;color:#5a6a80;text-transform:uppercase;letter-spacing:.6px;text-align:left;margin-bottom:6px;}
+#login-pwd{width:100%;padding:11px 14px;border:1.5px solid #dde6f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border .15s;letter-spacing:2px;color:#1a2332;}
+#login-pwd:focus{border-color:#3cb4dc;box-shadow:0 0 0 3px rgba(60,180,220,.15);}
+#login-btn{margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#001464,#002499);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+#login-btn:hover{opacity:.88;}
+#login-btn:disabled{opacity:.5;cursor:default;}
+#login-err{margin-top:12px;font-size:11px;color:#cc3333;font-weight:700;min-height:18px;display:flex;align-items:center;justify-content:center;gap:5px;}
+#login-footer{margin-top:28px;font-size:9px;color:#c0cad6;border-top:1px solid #f0f4f9;padding-top:14px;}
+/* LOGOUT BTN en header */
+#btn-logout{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:14px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;letter-spacing:.3px;}
+#btn-logout:hover{background:rgba(204,51,51,.7);border-color:#cc3333;}
+/* MAIN oculto hasta login */
+#main-content{display:none;}
 /* HEADER */
 .hdr{background:linear-gradient(135deg,#001464 0%,#001a7d 50%,#002499 100%);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #3cb4dc;box-shadow:0 2px 8px rgba(0,20,100,.15);}
 .hdr-logo-box{background:#fff;padding:7px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;}
@@ -111,6 +131,24 @@ canvas{max-height:300px;}
 </head>
 <body>
 
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay">
+  <div id="login-box">
+    <div id="login-logo">PDC</div>
+    <div id="login-sub">Brands &mdash; Per&uacute;</div>
+    <div id="login-title">Dashboard Efectividades</div>
+    <div id="login-desc">Acceso restringido al equipo PDC.<br>Ingresa la clave para continuar.</div>
+    <label for="login-pwd">Contrase&ntilde;a</label>
+    <input id="login-pwd" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button id="login-btn" onclick="doLogin()">&#128274; Ingresar</button>
+    <div id="login-err"></div>
+    <div id="login-footer">PDC Brands &mdash; Rutas Propias &mdash; Lakasa &mdash; 2026</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT (oculto hasta autenticarse) -->
+<div id="main-content">
+
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-logo-box">
@@ -123,8 +161,11 @@ canvas{max-height:300px;}
     <div class="hdr-t">Dashboard Efectividades</div>
     <div class="hdr-s">Rutas Propias &mdash; Per&uacute; &mdash; Lakasa</div>
   </div>
-  <div style="text-align:right;">
-    <div class="hdr-badge">&#9679; Operativo 2026</div>
+  <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-badge">&#9679; Operativo 2026</div>
+      <button id="btn-logout" onclick="doLogout()" title="Cerrar sesion">&#128274; Salir</button>
+    </div>
     <div class="hdr-ts" id="hdr-ts">Actualizado: —</div>
   </div>
 </div>
@@ -342,7 +383,83 @@ canvas{max-height:300px;}
   </div>
 </div>
 
+</div><!-- /main-content -->
+
 <script>
+// ── AUTENTICACION ─────────────────────────────────────────────────────────────
+// Hash SHA-256 de la contrasena. Para cambiarla ejecuta CAMBIAR CONTRASENA.bat
+const PWD_HASH = '2ec9cced0674ec85ce3352937a5be96e4debb031b59d7ae2ec668d7e94f37dd5';
+const SESSION_KEY  = 'dash_efv_session';
+const SESSION_HOURS = 8; // horas que dura la sesion sin volver a pedir clave
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function checkSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!s) return false;
+    const age = (Date.now() - s.ts) / 3600000;
+    return s.ok === true && age < SESSION_HOURS;
+  } catch(e) { return false; }
+}
+
+function saveSession() {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ ok: true, ts: Date.now() }));
+}
+
+function showDashboard() {
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('main-content').style.display  = 'block';
+}
+
+async function doLogin() {
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-err');
+  const pwd = document.getElementById('login-pwd').value;
+  if (!pwd) { err.textContent = 'Ingresa la contrasena.'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+  err.textContent = '';
+  try {
+    const h = await sha256(pwd);
+    if (h === PWD_HASH) {
+      saveSession();
+      showDashboard();
+      // Inicializar dashboard despues de mostrar
+      Chart.register(ChartDataLabels);
+      initFilters();
+      renderAll();
+    } else {
+      err.innerHTML = '&#10008; Contrasena incorrecta.';
+      document.getElementById('login-pwd').value = '';
+      document.getElementById('login-pwd').focus();
+    }
+  } catch(e) {
+    err.textContent = 'Error al verificar. Intenta de nuevo.';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '&#128274; Ingresar';
+}
+
+function doLogout() {
+  localStorage.removeItem(SESSION_KEY);
+  location.reload();
+}
+
+// Al cargar la pagina
+window.addEventListener('DOMContentLoaded', () => {
+  if (checkSession()) {
+    showDashboard();
+    initFilters();
+    renderAll();
+  } else {
+    document.getElementById('login-pwd').focus();
+  }
+});
+
 Chart.register(ChartDataLabels);
 
 // ── DATA ──────────────────────────────────────────────────────────────────────
@@ -903,9 +1020,9 @@ function showTab(el, id) {
   document.getElementById(id).classList.add('on');
 }
 
-// ── BOOT ─────────────────────────────────────────────────────────────────────
-initFilters();
-renderAll();
+// ── BOOT: gestionado por el sistema de autenticacion ─────────────────────────
+// initFilters() y renderAll() se llaman desde doLogin() o desde DOMContentLoaded
+// segun si la sesion ya esta activa o no.
 </script>
 </body>
 </html>
