@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard Efectividades — Rutas Propias</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',-apple-system,Arial,sans-serif;background:#f0efe9;color:#1a2332;font-weight:400;-webkit-font-smoothing:antialiased;}
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#001464 0%,#001a7d 50%,#002499 100%);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #3cb4dc;box-shadow:0 2px 8px rgba(0,20,100,.15);}
+.hdr-logo-box{background:#fff;padding:7px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;}
+.logo-pdc{font-size:22px;font-weight:900;color:#001464;letter-spacing:-1px;line-height:1;}
+.logo-sub{font-size:8px;color:#5a6a80;font-weight:700;text-transform:uppercase;letter-spacing:1px;line-height:1.4;}
+.hdr-center{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.hdr-t{font-size:18px;font-weight:900;letter-spacing:-.3px;}
+.hdr-s{font-size:10px;color:#a8d4ec;font-weight:300;letter-spacing:.5px;text-transform:uppercase;}
+.hdr-badge{font-size:11px;font-weight:700;color:#fff;background:rgba(60,180,220,.18);padding:6px 14px;border-radius:20px;border:1px solid rgba(60,180,220,.4);text-align:right;}
+.hdr-ts{font-size:9px;color:rgba(255,255,255,.5);margin-top:2px;}
+/* FILTER BAR */
+.fbar{background:#fff;padding:10px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;border-bottom:1px solid #e5edf5;box-shadow:0 1px 3px rgba(0,20,100,.04);position:sticky;top:0;z-index:50;}
+.fl{font-size:10px;font-weight:700;color:#5a6a80;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;}
+select.fs{border:1px solid #dde6f0;padding:5px 10px;border-radius:18px;font-size:11px;color:#1a2332;background:#f5f8fc;font-family:inherit;font-weight:600;cursor:pointer;outline:none;transition:all .15s;}
+select.fs:hover,select.fs:focus{border-color:#3cb4dc;background:#e3effa;}
+select.fs.active{border-color:#001464;background:#dde9ff;font-weight:700;}
+.sep{display:inline-block;width:1px;height:22px;background:#dde6f0;margin:0 2px;}
+.btn-reset{background:none;border:1px solid #dde6f0;padding:5px 12px;border-radius:18px;font-size:11px;color:#5a6a80;cursor:pointer;font-weight:600;transition:all .15s;font-family:inherit;}
+.btn-reset:hover{background:#fce8e6;border-color:#cc3333;color:#cc3333;}
+.fn{font-size:11px;color:#185FA5;font-weight:700;margin-left:auto;background:#e3f0ff;padding:4px 10px;border-radius:12px;white-space:nowrap;}
+/* KPI ROW */
+.krow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:14px 20px;background:#f0efe9;border-bottom:1px solid #e5e2d9;}
+.kpi{background:#fff;border-radius:10px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,20,100,.06),0 0 0 1px rgba(0,20,100,.04);position:relative;overflow:hidden;}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;}
+.kl{font-size:9px;color:#5a6a80;text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-bottom:5px;}
+.kv{font-size:21px;font-weight:900;line-height:1.1;color:#001464;letter-spacing:-.5px;}
+.kd{font-size:10px;color:#888;margin-top:3px;}
+/* TABS */
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e5edf5;padding:0 20px;overflow-x:auto;position:sticky;top:51px;z-index:40;box-shadow:0 1px 0 rgba(0,20,100,.04);}
+.tab{font-size:12px;padding:12px 18px;cursor:pointer;color:#5a6a80;border-bottom:3px solid transparent;margin-bottom:-1px;font-weight:500;white-space:nowrap;transition:all .15s;}
+.tab:hover{color:#185FA5;background:rgba(60,180,220,.04);}
+.tab.on{color:#001464;border-bottom-color:#3cb4dc;font-weight:900;}
+/* PANELS */
+.panel{display:none;padding:16px 20px;animation:fadein .2s;}
+.panel.on{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* CARDS */
+.card{background:#fff;border-radius:10px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,20,100,.06),0 0 0 1px rgba(0,20,100,.04);}
+.card-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.card-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.ch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ch{font-size:10px;font-weight:700;color:#001464;text-transform:uppercase;letter-spacing:1px;padding-bottom:7px;border-bottom:2px solid #3cb4dc;display:inline-block;}
+canvas{max-height:300px;}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{font-size:9px;color:#001464;text-align:left;padding:8px 7px;border-bottom:2px solid #3cb4dc;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;background:#f5f8fc;}
+.tbl td{padding:7px 7px;border-bottom:1px solid #eef2f7;color:#1a2332;vertical-align:middle;}
+.tbl tr:hover td{background:#f5f8fc;}
+.tbl th.r,.tbl td.r{text-align:right;}
+.tbl th.c,.tbl td.c{text-align:center;}
+/* PILLS */
+.pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;}
+.pg{background:#E8F5E2;color:#1a6a35;}
+.py{background:#FFF3CD;color:#7a5200;}
+.pr{background:#FDECEA;color:#8a1a1a;}
+/* PROGRESS BARS */
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.bl{font-size:10px;color:#444;width:200px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
+.bt{flex:1;height:18px;background:#eef3f8;border-radius:9px;overflow:hidden;}
+.bf{height:100%;border-radius:7px;display:flex;align-items:center;padding:0 6px;font-size:9px;font-weight:700;color:#fff;min-width:22px;white-space:nowrap;transition:width .4s;}
+.bv{font-size:10px;font-weight:700;width:52px;text-align:right;flex-shrink:0;color:#001464;}
+.pos{color:#1a8a5a;font-weight:700;}
+.neg{color:#cc3333;font-weight:700;}
+.neu{color:#888;}
+.warn{color:#c87700;font-weight:700;}
+.lbl-btn{padding:3px 10px;border:1px solid #dde6f0;border-radius:12px;font-size:10px;background:#f5f8fc;color:#5a6a80;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;}
+.lbl-btn:hover{border-color:#3cb4dc;color:#001464;background:#e3effa;}
+.lbl-btn.on{background:#001464;color:#fff;border-color:#001464;}
+.empty{color:#a0aebf;font-size:12px;padding:20px;text-align:center;font-style:italic;}
+/* TARJETAS VENDEDOR */
+.vc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;}
+.vc{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,20,100,.08),0 0 0 1px rgba(0,20,100,.05);transition:box-shadow .2s,transform .15s;position:relative;}
+.vc:hover{box-shadow:0 6px 20px rgba(0,20,100,.14),0 0 0 1px rgba(60,180,220,.3);transform:translateY(-2px);}
+.vc-head{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0f4f9;}
+.vc-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0;letter-spacing:-.5px;}
+.vc-name{font-size:11px;font-weight:800;color:#001464;line-height:1.3;}
+.vc-code{font-size:9px;color:#8a9ab0;font-weight:600;margin-top:1px;}
+.vc-status{margin-left:auto;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.vc-gauges{display:flex;justify-content:space-around;align-items:center;padding:14px 12px 8px;}
+.vc-gauge{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.vc-gauge svg{overflow:visible;}
+.vc-glabel{font-size:9px;color:#5a6a80;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.vc-gval{font-size:16px;font-weight:900;line-height:1;}
+.vc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid #f0f4f9;}
+.vc-m{padding:8px 12px;border-right:1px solid #f0f4f9;border-bottom:1px solid #f0f4f9;}
+.vc-m:nth-child(even){border-right:none;}
+.vc-m:nth-last-child(-n+2){border-bottom:none;}
+.vc-ml{font-size:8px;color:#8a9ab0;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:2px;}
+.vc-mv{font-size:12px;font-weight:800;color:#1a2332;}
+.vc-spark{padding:8px 12px 12px;border-top:1px solid #f0f4f9;}
+.vc-sparklabel{font-size:8px;color:#8a9ab0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.vc-bar-sort{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.vc-sort-btn{padding:3px 10px;border:1px solid #dde6f0;border-radius:12px;font-size:10px;background:#f5f8fc;color:#5a6a80;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;}
+.vc-sort-btn:hover{border-color:#3cb4dc;color:#001464;}
+.vc-sort-btn.on{background:#001464;color:#fff;border-color:#001464;}
+@media(max-width:900px){.krow{grid-template-columns:repeat(3,1fr);}.card-grid2,.card-grid3{grid-template-columns:1fr;}}
+@media(max-width:600px){.krow{grid-template-columns:repeat(2,1fr);}.hdr{flex-wrap:wrap;gap:8px;}.vc-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo-box">
+    <div>
+      <div class="logo-pdc">PDC</div>
+      <div class="logo-sub">Brands</div>
+    </div>
+  </div>
+  <div class="hdr-center">
+    <div class="hdr-t">Dashboard Efectividades</div>
+    <div class="hdr-s">Rutas Propias &mdash; Per&uacute; &mdash; Lakasa</div>
+  </div>
+  <div style="text-align:right;">
+    <div class="hdr-badge">&#9679; Operativo 2026</div>
+    <div class="hdr-ts" id="hdr-ts">Actualizado: —</div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="fbar">
+  <span class="fl">Filtros:</span>
+  <select class="fs" id="f-anio" onchange="applyFilters()">
+    <option value="">Todos los Años</option>
+  </select>
+  <select class="fs" id="f-mes" onchange="applyFilters()">
+    <option value="">Todos los Meses</option>
+  </select>
+  <div class="sep"></div>
+  <select class="fs" id="f-ruta" onchange="applyFilters()">
+    <option value="">Todas las Rutas</option>
+  </select>
+  <div class="sep"></div>
+  <button class="btn-reset" onclick="resetFilters()">&#10006; Limpiar</button>
+  <span class="fn" id="f-count">— registros</span>
+</div>
+
+<!-- KPI ROW -->
+<div class="krow">
+  <div class="kpi" style="--c1:#001464;--c2:#3cb4dc;">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#001464,#3cb4dc);"></div>
+    <div class="kl">Ef. Visita Prom.</div>
+    <div class="kv" id="kpi-efv" style="color:#001464;">—</div>
+    <div class="kd">Visitados / Itinerario</div>
+  </div>
+  <div class="kpi">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#1a8a5a,#2eb87a);"></div>
+    <div class="kl">Ef. Venta Prom.</div>
+    <div class="kv" id="kpi-evta" style="color:#1a8a5a;">—</div>
+    <div class="kd">Pedidos / Visitados</div>
+  </div>
+  <div class="kpi">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#c87700,#f0a500);"></div>
+    <div class="kl">Drop Size Prom.</div>
+    <div class="kv" id="kpi-drop" style="color:#c87700;">—</div>
+    <div class="kd">Venta / Clientes con Pedido</div>
+  </div>
+  <div class="kpi">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#185FA5,#3cb4dc);"></div>
+    <div class="kl">Clientes Visitados</div>
+    <div class="kv" id="kpi-visit" style="color:#185FA5;">—</div>
+    <div class="kd">Total acumulado</div>
+  </div>
+  <div class="kpi">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#cc3333,#e05555);"></div>
+    <div class="kl">Clientes c/ Pedido</div>
+    <div class="kv" id="kpi-ped" style="color:#cc3333;">—</div>
+    <div class="kd">Total acumulado</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab on" onclick="showTab(this,'tp-resumen')">&#9632; Resumen General</div>
+  <div class="tab" onclick="showTab(this,'tp-efectividades')">&#9685; Efectividades</div>
+  <div class="tab" onclick="showTab(this,'tp-tendencia')">&#9650; Tendencia Mensual</div>
+  <div class="tab" onclick="showTab(this,'tp-clientes')">&#9679; Clientes</div>
+  <div class="tab" onclick="showTab(this,'tp-detalle')">&#9776; Detalle</div>
+  <div class="tab" onclick="showTab(this,'tp-tarjetas')">&#9868; Tarjetas Vendedor</div>
+</div>
+
+<!-- TAB: RESUMEN -->
+<div id="tp-resumen" class="panel on">
+  <div class="card-grid2">
+    <div class="card">
+      <div class="ch-header">
+        <span class="ch">% Efectividad de Visita por Ruta</span>
+        <button class="lbl-btn on" id="lbl-ch1" onclick="toggleLabels('ch1')">Etiquetas</button>
+      </div>
+      <canvas id="ch1"></canvas>
+    </div>
+    <div class="card">
+      <div class="ch-header">
+        <span class="ch">% Efectividad de Venta por Ruta</span>
+        <button class="lbl-btn on" id="lbl-ch2" onclick="toggleLabels('ch2')">Etiquetas</button>
+      </div>
+      <canvas id="ch2"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch-header">
+      <span class="ch">Efectividad de Visita vs Venta — Ranking</span>
+    </div>
+    <div id="bars-ranking"></div>
+  </div>
+</div>
+
+<!-- TAB: EFECTIVIDADES -->
+<div id="tp-efectividades" class="panel">
+  <div class="card-grid2">
+    <div class="card">
+      <div class="ch-header">
+        <span class="ch">Ef. Visita — Distribución</span>
+        <button class="lbl-btn on" id="lbl-ch3" onclick="toggleLabels('ch3')">Etiquetas</button>
+      </div>
+      <canvas id="ch3" style="max-height:280px;"></canvas>
+    </div>
+    <div class="card">
+      <div class="ch-header">
+        <span class="ch">Ef. Venta — Distribución</span>
+        <button class="lbl-btn on" id="lbl-ch4" onclick="toggleLabels('ch4')">Etiquetas</button>
+      </div>
+      <canvas id="ch4" style="max-height:280px;"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch-header">
+      <span class="ch">Ef. Visita vs Ef. Venta — Comparativo por Ruta</span>
+      <button class="lbl-btn on" id="lbl-ch5" onclick="toggleLabels('ch5')">Etiquetas</button>
+    </div>
+    <canvas id="ch5" style="max-height:320px;"></canvas>
+  </div>
+</div>
+
+<!-- TAB: TENDENCIA -->
+<div id="tp-tendencia" class="panel">
+  <div class="card">
+    <div class="ch-header">
+      <span class="ch">Tendencia Ef. Visita — Mensual por Ruta</span>
+      <button class="lbl-btn on" id="lbl-ch6" onclick="toggleLabels('ch6')">Etiquetas</button>
+    </div>
+    <canvas id="ch6" style="max-height:340px;"></canvas>
+  </div>
+  <div class="card">
+    <div class="ch-header">
+      <span class="ch">Tendencia Ef. Venta — Mensual por Ruta</span>
+      <button class="lbl-btn on" id="lbl-ch7" onclick="toggleLabels('ch7')">Etiquetas</button>
+    </div>
+    <canvas id="ch7" style="max-height:340px;"></canvas>
+  </div>
+  <div class="card">
+    <div class="ch-header">
+      <span class="ch">Promedio General Mensual</span>
+      <button class="lbl-btn on" id="lbl-ch8" onclick="toggleLabels('ch8')">Etiquetas</button>
+    </div>
+    <canvas id="ch8" style="max-height:260px;"></canvas>
+  </div>
+</div>
+
+<!-- TAB: CLIENTES -->
+<div id="tp-clientes" class="panel">
+  <div class="card-grid3">
+    <div class="card">
+      <div class="ch-header"><span class="ch">Clientes Itinerario vs Visitados</span></div>
+      <canvas id="ch9" style="max-height:280px;"></canvas>
+    </div>
+    <div class="card">
+      <div class="ch-header"><span class="ch">Clientes con Pedido por Ruta</span></div>
+      <canvas id="ch10" style="max-height:280px;"></canvas>
+    </div>
+    <div class="card">
+      <div class="ch-header"><span class="ch">Drop Size por Ruta (S/.)</span></div>
+      <canvas id="ch11" style="max-height:280px;"></canvas>
+    </div>
+  </div>
+  <div class="card-grid2">
+    <div class="card">
+      <div class="ch-header"><span class="ch">Itinerario2 vs Visitados2 (Acumulado)</span></div>
+      <canvas id="ch12" style="max-height:260px;"></canvas>
+    </div>
+    <div class="card">
+      <div class="ch-header"><span class="ch">Venta vs Cuota por Ruta</span></div>
+      <canvas id="ch13" style="max-height:260px;"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: TARJETAS VENDEDOR -->
+<div id="tp-tarjetas" class="panel">
+  <div class="card" style="margin-bottom:12px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span style="font-size:10px;font-weight:700;color:#5a6a80;text-transform:uppercase;letter-spacing:.6px;">Ordenar por:</span>
+      <button class="vc-sort-btn on" id="vsort-efv"   onclick="setVSort('ef_visita')">Ef. Visita</button>
+      <button class="vc-sort-btn"    id="vsort-evta"  onclick="setVSort('ef_venta')">Ef. Venta</button>
+      <button class="vc-sort-btn"    id="vsort-drop"  onclick="setVSort('drop_size')">Drop Size</button>
+      <button class="vc-sort-btn"    id="vsort-visit" onclick="setVSort('cli_visit_mes')">Visitados</button>
+      <button class="vc-sort-btn"    id="vsort-venta" onclick="setVSort('venta')">Venta</button>
+      <button class="vc-sort-btn"    id="vsort-name"  onclick="setVSort('nombre')">Nombre A-Z</button>
+      <span style="margin-left:auto;font-size:10px;color:#5a6a80;" id="vc-count-lbl"></span>
+    </div>
+  </div>
+  <div class="vc-grid" id="vc-grid"></div>
+</div>
+
+<!-- TAB: DETALLE -->
+<div id="tp-detalle" class="panel">
+  <div class="card">
+    <div class="ch-header"><span class="ch">Detalle Completo — Efectividades</span></div>
+    <div style="overflow-x:auto;">
+      <table class="tbl" id="tbl-detalle">
+        <thead>
+          <tr>
+            <th>Ruta</th>
+            <th class="c">Año</th>
+            <th class="c">Mes</th>
+            <th class="r">Venta (S/.)</th>
+            <th class="r">Cuota (S/.)</th>
+            <th class="r">% Cump.</th>
+            <th class="r">Drop Size</th>
+            <th class="r">Cli. Itin.</th>
+            <th class="r">Cli. Visit.</th>
+            <th class="r">Cli. Ped.</th>
+            <th class="r">Ef. Visita</th>
+            <th class="r">Ef. Venta</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const RAW = [{"ruta":"135077 WILL ERNESTO COTOM MEJIA","anio":"2026","mes":"Febrero","venta":0,"cuota":0,"drop_size":39.9,"cli_itin_mes":0,"cli_visit_mes":1,"cli_itin2":1,"cli_visit2":1,"cli_pedidos":1,"ef_visita":100.0,"ef_venta":100.0},{"ruta":"137000 ANGELA CUZMA QUILICHE","anio":"2026","mes":"Enero","venta":98005.16,"cuota":76157.63,"drop_size":323.07,"cli_itin_mes":263,"cli_visit_mes":202,"cli_itin2":1108,"cli_visit2":1108,"cli_pedidos":367,"ef_visita":100.0,"ef_venta":33.12},{"ruta":"137000 ANGELA CUZMA QUILICHE","anio":"2026","mes":"Febrero","venta":84558.0,"cuota":76157.63,"drop_size":274.42,"cli_itin_mes":267,"cli_visit_mes":185,"cli_itin2":1060,"cli_visit2":1060,"cli_pedidos":346,"ef_visita":100.0,"ef_venta":32.64},{"ruta":"137000 ANGELA CUZMA QUILICHE","anio":"2026","mes":"Marzo","venta":92506.47,"cuota":76157.63,"drop_size":303.26,"cli_itin_mes":266,"cli_visit_mes":188,"cli_itin2":1146,"cli_visit2":1137,"cli_pedidos":350,"ef_visita":99.21,"ef_venta":30.78},{"ruta":"137000 ANGELA CUZMA QUILICHE","anio":"2026","mes":"Abril","venta":79414.83,"cuota":91157.63,"drop_size":247.55,"cli_itin_mes":271,"cli_visit_mes":184,"cli_itin2":1120,"cli_visit2":1001,"cli_pedidos":349,"ef_visita":89.38,"ef_venta":34.87},{"ruta":"137000 ANGELA CUZMA QUILICHE","anio":"2026","mes":"Mayo","venta":76078.03,"cuota":91157.63,"drop_size":260.78,"cli_itin_mes":275,"cli_visit_mes":175,"cli_itin2":1180,"cli_visit2":850,"cli_pedidos":297,"ef_visita":72.03,"ef_venta":34.94},{"ruta":"137000 ANGELA CUZMA QUILICHE","anio":"2026","mes":"Junio","venta":10766.72,"cuota":91157.63,"drop_size":177.68,"cli_itin_mes":275,"cli_visit_mes":56,"cli_itin2":199,"cli_visit2":198,"cli_pedidos":56,"ef_visita":99.5,"ef_venta":28.28},{"ruta":"137001 ANTONIO REQUIS CANCHARI","anio":"2026","mes":"Enero","venta":142395.62,"cuota":109469.72,"drop_size":289.24,"cli_itin_mes":316,"cli_visit_mes":219,"cli_itin2":1056,"cli_visit2":1045,"cli_pedidos":407,"ef_visita":98.96,"ef_venta":38.95},{"ruta":"137001 ANTONIO REQUIS CANCHARI","anio":"2026","mes":"Febrero","venta":139822.81,"cuota":109469.72,"drop_size":265.23,"cli_itin_mes":317,"cli_visit_mes":199,"cli_itin2":884,"cli_visit2":877,"cli_pedidos":380,"ef_visita":99.21,"ef_venta":43.33},{"ruta":"137001 ANTONIO REQUIS CANCHARI","anio":"2026","mes":"Marzo","venta":118543.36,"cuota":109469.72,"drop_size":320.37,"cli_itin_mes":386,"cli_visit_mes":205,"cli_itin2":1272,"cli_visit2":1043,"cli_pedidos":391,"ef_visita":82.0,"ef_venta":37.49},{"ruta":"137001 ANTONIO REQUIS CANCHARI","anio":"2026","mes":"Abril","venta":136517.17,"cuota":109469.72,"drop_size":411.66,"cli_itin_mes":368,"cli_visit_mes":234,"cli_itin2":1634,"cli_visit2":1255,"cli_pedidos":428,"ef_visita":76.81,"ef_venta":34.1},{"ruta":"137001 ANTONIO REQUIS CANCHARI","anio":"2026","mes":"Mayo","venta":122097.22,"cuota":124469.72,"drop_size":400.38,"cli_itin_mes":376,"cli_visit_mes":228,"cli_itin2":1548,"cli_visit2":1121,"cli_pedidos":388,"ef_visita":72.42,"ef_venta":34.61},{"ruta":"137001 ANTONIO REQUIS CANCHARI","anio":"2026","mes":"Junio","venta":10868.57,"cuota":124469.72,"drop_size":273.89,"cli_itin_mes":376,"cli_visit_mes":40,"cli_itin2":284,"cli_visit2":165,"cli_pedidos":40,"ef_visita":58.1,"ef_venta":24.24},{"ruta":"137002 JORGE LUIS BARRIOS FRANCIA","anio":"2026","mes":"Enero","venta":55032.67,"cuota":43528.56,"drop_size":311.42,"cli_itin_mes":381,"cli_visit_mes":137,"cli_itin2":225,"cli_visit2":179,"cli_pedidos":171,"ef_visita":79.56,"ef_venta":95.53},{"ruta":"137002 JORGE LUIS BARRIOS FRANCIA","anio":"2026","mes":"Febrero","venta":40390.97,"cuota":43528.56,"drop_size":249.45,"cli_itin_mes":406,"cli_visit_mes":130,"cli_itin2":242,"cli_visit2":190,"cli_pedidos":187,"ef_visita":78.51,"ef_venta":98.42},{"ruta":"137002 JORGE LUIS BARRIOS FRANCIA","anio":"2026","mes":"Marzo","venta":48425.28,"cuota":43528.56,"drop_size":355.04,"cli_itin_mes":449,"cli_visit_mes":144,"cli_itin2":1244,"cli_visit2":240,"cli_pedidos":195,"ef_visita":19.29,"ef_venta":81.25},{"ruta":"137002 JORGE LUIS BARRIOS FRANCIA","anio":"2026","mes":"Abril","venta":34349.3,"cuota":47028.56,"drop_size":291.02,"cli_itin_mes":283,"cli_visit_mes":126,"cli_itin2":1914,"cli_visit2":386,"cli_pedidos":173,"ef_visita":20.17,"ef_venta":44.82},{"ruta":"137002 JORGE LUIS BARRIOS FRANCIA","anio":"2026","mes":"Mayo","venta":28210.91,"cuota":60028.56,"drop_size":329.66,"cli_itin_mes":307,"cli_visit_mes":109,"cli_itin2":1340,"cli_visit2":209,"cli_pedidos":141,"ef_visita":15.6,"ef_venta":67.46},{"ruta":"137002 JORGE LUIS BARRIOS FRANCIA","anio":"2026","mes":"Junio","venta":2294.27,"cuota":60028.56,"drop_size":134.23,"cli_itin_mes":308,"cli_visit_mes":6,"cli_itin2":241,"cli_visit2":7,"cli_pedidos":6,"ef_visita":2.9,"ef_venta":85.71},{"ruta":"137067 LUIS MANUEL BARRIOS ANGULO","anio":"2026","mes":"Enero","venta":18011.1,"cuota":46298.98,"drop_size":140.32,"cli_itin_mes":204,"cli_visit_mes":104,"cli_itin2":433,"cli_visit2":422,"cli_pedidos":162,"ef_visita":97.46,"ef_venta":38.39},{"ruta":"137067 LUIS MANUEL BARRIOS ANGULO","anio":"2026","mes":"Febrero","venta":14527.27,"cuota":46298.98,"drop_size":133.09,"cli_itin_mes":236,"cli_visit_mes":126,"cli_itin2":498,"cli_visit2":485,"cli_pedidos":192,"ef_visita":97.39,"ef_venta":39.59},{"ruta":"137067 LUIS MANUEL BARRIOS ANGULO","anio":"2026","mes":"Marzo","venta":21378.43,"cuota":46298.98,"drop_size":115.95,"cli_itin_mes":277,"cli_visit_mes":132,"cli_itin2":853,"cli_visit2":574,"cli_pedidos":213,"ef_visita":67.29,"ef_venta":37.11},{"ruta":"137067 LUIS MANUEL BARRIOS ANGULO","anio":"2026","mes":"Abril","venta":28600.58,"cuota":46798.98,"drop_size":159.32,"cli_itin_mes":253,"cli_visit_mes":133,"cli_itin2":1105,"cli_visit2":683,"cli_pedidos":202,"ef_visita":61.81,"ef_venta":29.58},{"ruta":"137067 LUIS MANUEL BARRIOS ANGULO","anio":"2026","mes":"Mayo","venta":11250.32,"cuota":60798.98,"drop_size":120.06,"cli_itin_mes":271,"cli_visit_mes":108,"cli_itin2":1115,"cli_visit2":533,"cli_pedidos":163,"ef_visita":47.8,"ef_venta":30.58},{"ruta":"137067 LUIS MANUEL BARRIOS ANGULO","anio":"2026","mes":"Junio","venta":3593.38,"cuota":60798.98,"drop_size":173.31,"cli_itin_mes":275,"cli_visit_mes":26,"cli_itin2":207,"cli_visit2":68,"cli_pedidos":26,"ef_visita":32.85,"ef_venta":38.24},{"ruta":"137068 JOSE MANUEL OBREGON GAVANCHO","anio":"2026","mes":"Enero","venta":82471.05,"cuota":71570.35,"drop_size":304.09,"cli_itin_mes":365,"cli_visit_mes":178,"cli_itin2":469,"cli_visit2":384,"cli_pedidos":333,"ef_visita":81.88,"ef_venta":86.72},{"ruta":"137068 JOSE MANUEL OBREGON GAVANCHO","anio":"2026","mes":"Febrero","venta":70214.14,"cuota":71570.35,"drop_size":421.97,"cli_itin_mes":320,"cli_visit_mes":168,"cli_itin2":395,"cli_visit2":309,"cli_pedidos":267,"ef_visita":78.23,"ef_venta":86.41},{"ruta":"137068 JOSE MANUEL OBREGON GAVANCHO","anio":"2026","mes":"Marzo","venta":56803.66,"cuota":71570.35,"drop_size":239.51,"cli_itin_mes":346,"cli_visit_mes":184,"cli_itin2":1112,"cli_visit2":510,"cli_pedidos":260,"ef_visita":45.86,"ef_venta":50.98},{"ruta":"137068 JOSE MANUEL OBREGON GAVANCHO","anio":"2026","mes":"Abril","venta":71705.32,"cuota":76570.35,"drop_size":251.64,"cli_itin_mes":376,"cli_visit_mes":203,"cli_itin2":1427,"cli_visit2":490,"cli_pedidos":320,"ef_visita":34.34,"ef_venta":65.31},{"ruta":"137068 JOSE MANUEL OBREGON GAVANCHO","anio":"2026","mes":"Mayo","venta":53049.1,"cuota":76570.35,"drop_size":223.15,"cli_itin_mes":415,"cli_visit_mes":174,"cli_itin2":1696,"cli_visit2":286,"cli_pedidos":276,"ef_visita":16.86,"ef_venta":96.5},{"ruta":"137068 JOSE MANUEL OBREGON GAVANCHO","anio":"2026","mes":"Junio","venta":5107.68,"cuota":76570.35,"drop_size":274.42,"cli_itin_mes":415,"cli_visit_mes":17,"cli_itin2":332,"cli_visit2":18,"cli_pedidos":18,"ef_visita":5.42,"ef_venta":100.0},{"ruta":"137069 JOEL JAIR BANCES MARTINEZ","anio":"2026","mes":"Enero","venta":39787.32,"cuota":45414.46,"drop_size":131.54,"cli_itin_mes":267,"cli_visit_mes":201,"cli_itin2":537,"cli_visit2":511,"cli_pedidos":348,"ef_visita":95.16,"ef_venta":68.1},{"ruta":"137069 JOEL JAIR BANCES MARTINEZ","anio":"2026","mes":"Febrero","venta":31782.14,"cuota":45414.46,"drop_size":122.87,"cli_itin_mes":266,"cli_visit_mes":178,"cli_itin2":375,"cli_visit2":347,"cli_pedidos":299,"ef_visita":92.53,"ef_venta":86.17},{"ruta":"137069 JOEL JAIR BANCES MARTINEZ","anio":"2026","mes":"Marzo","venta":41099.15,"cuota":45414.46,"drop_size":124.0,"cli_itin_mes":356,"cli_visit_mes":198,"cli_itin2":995,"cli_visit2":721,"cli_pedidos":346,"ef_visita":72.46,"ef_venta":47.99},{"ruta":"137069 JOEL JAIR BANCES MARTINEZ","anio":"2026","mes":"Abril","venta":36819.17,"cuota":46914.46,"drop_size":125.43,"cli_itin_mes":335,"cli_visit_mes":205,"cli_itin2":1455,"cli_visit2":787,"cli_pedidos":330,"ef_visita":54.09,"ef_venta":41.93},{"ruta":"137069 JOEL JAIR BANCES MARTINEZ","anio":"2026","mes":"Mayo","venta":33851.42,"cuota":60914.46,"drop_size":112.18,"cli_itin_mes":373,"cli_visit_mes":234,"cli_itin2":1455,"cli_visit2":721,"cli_pedidos":361,"ef_visita":49.55,"ef_venta":50.07},{"ruta":"137069 JOEL JAIR BANCES MARTINEZ","anio":"2026","mes":"Junio","venta":4305.78,"cuota":60914.46,"drop_size":89.29,"cli_itin_mes":383,"cli_visit_mes":43,"cli_itin2":308,"cli_visit2":77,"cli_pedidos":43,"ef_visita":25.0,"ef_venta":55.84},{"ruta":"137070 JAIME ANTONIO AGURTO TEMOCHE","anio":"2026","mes":"Enero","venta":60978.83,"cuota":66739.1,"drop_size":798.21,"cli_itin_mes":266,"cli_visit_mes":43,"cli_itin2":187,"cli_visit2":107,"cli_pedidos":64,"ef_visita":57.22,"ef_venta":59.81},{"ruta":"137070 JAIME ANTONIO AGURTO TEMOCHE","anio":"2026","mes":"Febrero","venta":40911.0,"cuota":66739.1,"drop_size":401.08,"cli_itin_mes":275,"cli_visit_mes":48,"cli_itin2":62,"cli_visit2":62,"cli_pedidos":62,"ef_visita":100.0,"ef_venta":100.0},{"ruta":"137070 JAIME ANTONIO AGURTO TEMOCHE","anio":"2026","mes":"Marzo","venta":63725.71,"cuota":66739.1,"drop_size":557.83,"cli_itin_mes":290,"cli_visit_mes":79,"cli_itin2":783,"cli_visit2":198,"cli_pedidos":120,"ef_visita":25.29,"ef_venta":60.61},{"ruta":"137070 JAIME ANTONIO AGURTO TEMOCHE","anio":"2026","mes":"Abril","venta":60120.5,"cuota":66739.1,"drop_size":344.2,"cli_itin_mes":195,"cli_visit_mes":104,"cli_itin2":1258,"cli_visit2":452,"cli_pedidos":183,"ef_visita":35.93,"ef_venta":40.49},{"ruta":"137070 JAIME ANTONIO AGURTO TEMOCHE","anio":"2026","mes":"Mayo","venta":50242.68,"cuota":66739.1,"drop_size":330.04,"cli_itin_mes":224,"cli_visit_mes":116,"cli_itin2":900,"cli_visit2":445,"cli_pedidos":177,"ef_visita":49.44,"ef_venta":39.78},{"ruta":"137070 JAIME ANTONIO AGURTO TEMOCHE","anio":"2026","mes":"Junio","venta":11196.52,"cuota":66739.1,"drop_size":317.32,"cli_itin_mes":225,"cli_visit_mes":38,"cli_itin2":159,"cli_visit2":81,"cli_pedidos":38,"ef_visita":50.94,"ef_venta":46.91},{"ruta":"137071 BERNARDO MARIN MARTINEZ","anio":"2026","mes":"Enero","venta":36703.23,"cuota":47207.65,"drop_size":147.24,"cli_itin_mes":363,"cli_visit_mes":135,"cli_itin2":462,"cli_visit2":424,"cli_pedidos":211,"ef_visita":91.77,"ef_venta":49.76},{"ruta":"137071 BERNARDO MARIN MARTINEZ","anio":"2026","mes":"Febrero","venta":28295.51,"cuota":47207.65,"drop_size":140.19,"cli_itin_mes":375,"cli_visit_mes":132,"cli_itin2":356,"cli_visit2":356,"cli_pedidos":199,"ef_visita":100.0,"ef_venta":55.9},{"ruta":"137071 BERNARDO MARIN MARTINEZ","anio":"2026","mes":"Marzo","venta":29260.72,"cuota":47207.65,"drop_size":129.21,"cli_itin_mes":454,"cli_visit_mes":126,"cli_itin2":1077,"cli_visit2":524,"cli_pedidos":207,"ef_visita":48.65,"ef_venta":39.5},{"ruta":"137071 BERNARDO MARIN MARTINEZ","anio":"2026","mes":"Abril","venta":23336.79,"cuota":47207.65,"drop_size":146.55,"cli_itin_mes":462,"cli_visit_mes":138,"cli_itin2":1948,"cli_visit2":645,"cli_pedidos":206,"ef_visita":33.11,"ef_venta":31.94},{"ruta":"137071 BERNARDO MARIN MARTINEZ","anio":"2026","mes":"Mayo","venta":24261.04,"cuota":60207.65,"drop_size":164.84,"cli_itin_mes":473,"cli_visit_mes":116,"cli_itin2":1858,"cli_visit2":247,"cli_pedidos":174,"ef_visita":13.29,"ef_venta":70.45},{"ruta":"137071 BERNARDO MARIN MARTINEZ","anio":"2026","mes":"Junio","venta":4128.36,"cuota":60207.65,"drop_size":159.31,"cli_itin_mes":473,"cli_visit_mes":26,"cli_itin2":378,"cli_visit2":26,"cli_pedidos":26,"ef_visita":6.88,"ef_venta":100.0},{"ruta":"137072 JUAN CARLOS RODRÍGUEZ SÁNCHEZ","anio":"2026","mes":"Enero","venta":95143.76,"cuota":52858.69,"drop_size":551.23,"cli_itin_mes":305,"cli_visit_mes":136,"cli_itin2":300,"cli_visit2":251,"cli_pedidos":232,"ef_visita":83.67,"ef_venta":92.43},{"ruta":"137072 JUAN CARLOS RODRÍGUEZ SÁNCHEZ","anio":"2026","mes":"Febrero","venta":93000.37,"cuota":52858.69,"drop_size":633.04,"cli_itin_mes":318,"cli_visit_mes":115,"cli_itin2":243,"cli_visit2":204,"cli_pedidos":185,"ef_visita":83.95,"ef_venta":90.69},{"ruta":"137072 JUAN CARLOS RODRÍGUEZ SÁNCHEZ","anio":"2026","mes":"Marzo","venta":79213.84,"cuota":52858.69,"drop_size":384.22,"cli_itin_mes":395,"cli_visit_mes":126,"cli_itin2":896,"cli_visit2":229,"cli_pedidos":202,"ef_visita":25.56,"ef_venta":88.21},{"ruta":"137072 JUAN CARLOS RODRÍGUEZ SÁNCHEZ","anio":"2026","mes":"Abril","venta":73289.63,"cuota":82547.69,"drop_size":372.26,"cli_itin_mes":356,"cli_visit_mes":131,"cli_itin2":1539,"cli_visit2":348,"cli_pedidos":224,"ef_visita":22.61,"ef_venta":64.37},{"ruta":"137072 JUAN CARLOS RODRÍGUEZ SÁNCHEZ","anio":"2026","mes":"Mayo","venta":88059.95,"cuota":82547.69,"drop_size":477.61,"cli_itin_mes":393,"cli_visit_mes":132,"cli_itin2":1698,"cli_visit2":237,"cli_pedidos":195,"ef_visita":13.96,"ef_venta":82.28},{"ruta":"137072 JUAN CARLOS RODRÍGUEZ SÁNCHEZ","anio":"2026","mes":"Junio","venta":3990.88,"cuota":82547.69,"drop_size":129.68,"cli_itin_mes":395,"cli_visit_mes":20,"cli_itin2":237,"cli_visit2":23,"cli_pedidos":20,"ef_visita":9.7,"ef_venta":86.96},{"ruta":"137073 IVAN ALBERTO SALAS ORMEÑO","anio":"2026","mes":"Enero","venta":97223.82,"cuota":100870.8,"drop_size":225.53,"cli_itin_mes":545,"cli_visit_mes":286,"cli_itin2":991,"cli_visit2":929,"cli_pedidos":472,"ef_visita":93.74,"ef_venta":50.81},{"ruta":"137073 IVAN ALBERTO SALAS ORMEÑO","anio":"2026","mes":"Febrero","venta":65328.39,"cuota":100870.8,"drop_size":185.21,"cli_itin_mes":498,"cli_visit_mes":248,"cli_itin2":700,"cli_visit2":639,"cli_pedidos":417,"ef_visita":91.29,"ef_venta":65.26},{"ruta":"137073 IVAN ALBERTO SALAS ORMEÑO","anio":"2026","mes":"Marzo","venta":89014.03,"cuota":100870.8,"drop_size":211.02,"cli_itin_mes":481,"cli_visit_mes":279,"cli_itin2":1485,"cli_visit2":988,"cli_pedidos":452,"ef_visita":66.53,"ef_venta":45.75},{"ruta":"137073 IVAN ALBERTO SALAS ORMEÑO","anio":"2026","mes":"Abril","venta":81452.44,"cuota":98870.8,"drop_size":205.09,"cli_itin_mes":490,"cli_visit_mes":269,"cli_itin2":2031,"cli_visit2":1095,"cli_pedidos":413,"ef_visita":53.91,"ef_venta":37.72},{"ruta":"137073 IVAN ALBERTO SALAS ORMEÑO","anio":"2026","mes":"Mayo","venta":79673.77,"cuota":100870.8,"drop_size":220.66,"cli_itin_mes":514,"cli_visit_mes":253,"cli_itin2":2038,"cli_visit2":867,"cli_pedidos":380,"ef_visita":42.54,"ef_venta":43.83},{"ruta":"137073 IVAN ALBERTO SALAS ORMEÑO","anio":"2026","mes":"Junio","venta":8392.7,"cuota":100870.8,"drop_size":138.31,"cli_itin_mes":522,"cli_visit_mes":57,"cli_itin2":388,"cli_visit2":117,"cli_pedidos":57,"ef_visita":30.15,"ef_venta":48.72},{"ruta":"137074 IRVIN JOSE ROJAS CHAVARRY","anio":"2026","mes":"Marzo","venta":-369.1,"cuota":0,"drop_size":0,"cli_itin_mes":84,"cli_visit_mes":0,"cli_itin2":1449,"cli_visit2":0,"cli_pedidos":0,"ef_visita":0,"ef_venta":0},{"ruta":"137075 DAMIÁN LILO FERNÁNDEZ SALVADOR","anio":"2026","mes":"Marzo","venta":0,"cuota":0,"drop_size":0,"cli_itin_mes":4,"cli_visit_mes":0,"cli_itin2":2209,"cli_visit2":0,"cli_pedidos":0,"ef_visita":0,"ef_venta":0},{"ruta":"137076 ERNESTO BERNARDINO MARTINEZ VENTURO","anio":"2026","mes":"Marzo","venta":0,"cuota":0,"drop_size":0,"cli_itin_mes":0,"cli_visit_mes":0,"cli_itin2":1914,"cli_visit2":0,"cli_pedidos":0,"ef_visita":0,"ef_venta":0},{"ruta":"137078 YALO PERÚ","anio":"2026","mes":"Enero","venta":0,"cuota":0,"drop_size":0,"cli_itin_mes":4170,"cli_visit_mes":0,"cli_itin2":754,"cli_visit2":0,"cli_pedidos":0,"ef_visita":0,"ef_venta":0},{"ruta":"137078 YALO PERÚ","anio":"2026","mes":"Abril","venta":-599.11,"cuota":0,"drop_size":0,"cli_itin_mes":5032,"cli_visit_mes":0,"cli_itin2":2778,"cli_visit2":0,"cli_pedidos":0,"ef_visita":0,"ef_venta":0},{"ruta":"137084 HENRY ANGELLO CHÁVEZ CERVANTES","anio":"2026","mes":"Enero","venta":227.72,"cuota":48972.34,"drop_size":149.25,"cli_itin_mes":300,"cli_visit_mes":178,"cli_itin2":547,"cli_visit2":499,"cli_pedidos":297,"ef_visita":91.22,"ef_venta":59.52},{"ruta":"137084 HENRY ANGELLO CHÁVEZ CERVANTES","anio":"2026","mes":"Febrero","venta":-62.32,"cuota":48972.34,"drop_size":146.97,"cli_itin_mes":317,"cli_visit_mes":156,"cli_itin2":406,"cli_visit2":355,"cli_pedidos":245,"ef_visita":87.44,"ef_venta":69.01},{"ruta":"137084 HENRY ANGELLO CHÁVEZ CERVANTES","anio":"2026","mes":"Marzo","venta":-172.37,"cuota":48972.34,"drop_size":148.27,"cli_itin_mes":8,"cli_visit_mes":132,"cli_itin2":387,"cli_visit2":279,"cli_pedidos":177,"ef_visita":72.09,"ef_venta":63.44},{"ruta":"137085 ALFIERI EMILIO VERA ALTUNA","anio":"2026","mes":"Enero","venta":57731.84,"cuota":51132.75,"drop_size":255.37,"cli_itin_mes":206,"cli_visit_mes":120,"cli_itin2":209,"cli_visit2":189,"cli_pedidos":185,"ef_visita":90.43,"ef_venta":97.88},{"ruta":"137085 ALFIERI EMILIO VERA ALTUNA","anio":"2026","mes":"Febrero","venta":50801.31,"cuota":51132.75,"drop_size":301.35,"cli_itin_mes":244,"cli_visit_mes":116,"cli_itin2":181,"cli_visit2":156,"cli_pedidos":156,"ef_visita":86.19,"ef_venta":100.0},{"ruta":"137085 ALFIERI EMILIO VERA ALTUNA","anio":"2026","mes":"Marzo","venta":54136.26,"cuota":51132.75,"drop_size":230.04,"cli_itin_mes":465,"cli_visit_mes":123,"cli_itin2":625,"cli_visit2":278,"cli_pedidos":208,"ef_visita":44.48,"ef_venta":74.82},{"ruta":"137085 ALFIERI EMILIO VERA ALTUNA","anio":"2026","mes":"Abril","venta":51026.51,"cuota":51132.75,"drop_size":177.2,"cli_itin_mes":405,"cli_visit_mes":200,"cli_itin2":1386,"cli_visit2":585,"cli_pedidos":316,"ef_visita":42.21,"ef_venta":54.02},{"ruta":"137085 ALFIERI EMILIO VERA ALTUNA","anio":"2026","mes":"Mayo","venta":42024.05,"cuota":61132.75,"drop_size":153.66,"cli_itin_mes":448,"cli_visit_mes":205,"cli_itin2":1457,"cli_visit2":378,"cli_pedidos":325,"ef_visita":25.94,"ef_venta":85.98},{"ruta":"137085 ALFIERI EMILIO VERA ALTUNA","anio":"2026","mes":"Junio","venta":3198.01,"cuota":61132.75,"drop_size":91.46,"cli_itin_mes":453,"cli_visit_mes":33,"cli_itin2":176,"cli_visit2":33,"cli_pedidos":33,"ef_visita":18.75,"ef_venta":100.0},{"ruta":"137086 ALEXANDER VICTOR ESCALANTE LAZO","anio":"2026","mes":"Febrero","venta":0,"cuota":47368.69,"drop_size":0,"cli_itin_mes":276,"cli_visit_mes":0,"cli_itin2":57,"cli_visit2":0,"cli_pedidos":0,"ef_visita":0,"ef_venta":0},{"ruta":"137086 ALEXANDER VICTOR ESCALANTE LAZO","anio":"2026","mes":"Marzo","venta":497.15,"cuota":47368.69,"drop_size":189.92,"cli_itin_mes":11,"cli_visit_mes":27,"cli_itin2":122,"cli_visit2":49,"cli_pedidos":27,"ef_visita":40.16,"ef_venta":55.1},{"ruta":"137087 ESTEBAN MARTIN GOMEZ ROJAS","anio":"2026","mes":"Enero","venta":28624.22,"cuota":47260.94,"drop_size":121.43,"cli_itin_mes":215,"cli_visit_mes":141,"cli_itin2":319,"cli_visit2":289,"cli_pedidos":278,"ef_visita":90.6,"ef_venta":96.19},{"ruta":"137087 ESTEBAN MARTIN GOMEZ ROJAS","anio":"2026","mes":"Febrero","venta":24114.37,"cuota":47260.94,"drop_size":116.83,"cli_itin_mes":230,"cli_visit_mes":130,"cli_itin2":269,"cli_visit2":241,"cli_pedidos":241,"ef_visita":89.59,"ef_venta":100.0},{"ruta":"137087 ESTEBAN MARTIN GOMEZ ROJAS","anio":"2026","mes":"Marzo","venta":26316.91,"cuota":47260.94,"drop_size":115.53,"cli_itin_mes":242,"cli_visit_mes":126,"cli_itin2":618,"cli_visit2":412,"cli_pedidos":241,"ef_visita":66.67,"ef_venta":58.5},{"ruta":"137087 ESTEBAN MARTIN GOMEZ ROJAS","anio":"2026","mes":"Abril","venta":28231.97,"cuota":47260.94,"drop_size":109.55,"cli_itin_mes":223,"cli_visit_mes":140,"cli_itin2":969,"cli_visit2":661,"cli_pedidos":271,"ef_visita":68.21,"ef_venta":41.0},{"ruta":"137087 ESTEBAN MARTIN GOMEZ ROJAS","anio":"2026","mes":"Mayo","venta":14119.79,"cuota":60260.94,"drop_size":103.86,"cli_itin_mes":231,"cli_visit_mes":99,"cli_itin2":954,"cli_visit2":647,"cli_pedidos":167,"ef_visita":67.82,"ef_venta":25.81},{"ruta":"137087 ESTEBAN MARTIN GOMEZ ROJAS","anio":"2026","mes":"Junio","venta":2386.09,"cuota":60260.94,"drop_size":92.3,"cli_itin_mes":232,"cli_visit_mes":30,"cli_itin2":164,"cli_visit2":102,"cli_pedidos":30,"ef_visita":62.2,"ef_venta":29.41},{"ruta":"137091 MIJHAEL DYANGO RIVAS HUAYANAY","anio":"2026","mes":"Mayo","venta":36.01,"cuota":0,"drop_size":58.95,"cli_itin_mes":71,"cli_visit_mes":2,"cli_itin2":138,"cli_visit2":4,"cli_pedidos":2,"ef_visita":2.9,"ef_venta":50.0},{"ruta":"137092 HAROL NICOLAS MEDINA GÓMEZ","anio":"2026","mes":"Mayo","venta":2416.21,"cuota":0,"drop_size":66.41,"cli_itin_mes":127,"cli_visit_mes":43,"cli_itin2":410,"cli_visit2":50,"cli_pedidos":50,"ef_visita":12.2,"ef_venta":100.0},{"ruta":"137092 HAROL NICOLAS MEDINA GÓMEZ","anio":"2026","mes":"Junio","venta":808.78,"cuota":0,"drop_size":96.37,"cli_itin_mes":137,"cli_visit_mes":9,"cli_itin2":98,"cli_visit2":9,"cli_pedidos":9,"ef_visita":9.18,"ef_venta":100.0},{"ruta":"137093 FELIX MARTIN INGA ALTAMIRANO","anio":"2026","mes":"Mayo","venta":2603.71,"cuota":0,"drop_size":103.76,"cli_itin_mes":109,"cli_visit_mes":29,"cli_itin2":301,"cli_visit2":35,"cli_pedidos":34,"ef_visita":11.63,"ef_venta":97.14},{"ruta":"137093 FELIX MARTIN INGA ALTAMIRANO","anio":"2026","mes":"Junio","venta":737.03,"cuota":0,"drop_size":94.29,"cli_itin_mes":113,"cli_visit_mes":9,"cli_itin2":60,"cli_visit2":9,"cli_pedidos":9,"ef_visita":15.0,"ef_venta":100.0},{"ruta":"137136 ALEX BALTAZAR JARAMILLO MAGALLANES","anio":"2026","mes":"Mayo","venta":1381.95,"cuota":0,"drop_size":83.85,"cli_itin_mes":236,"cli_visit_mes":22,"cli_itin2":556,"cli_visit2":41,"cli_pedidos":26,"ef_visita":7.37,"ef_venta":63.41},{"ruta":"137136 ALEX BALTAZAR JARAMILLO MAGALLANES","anio":"2026","mes":"Junio","venta":149.99,"cuota":0,"drop_size":59.3,"cli_itin_mes":241,"cli_visit_mes":2,"cli_itin2":178,"cli_visit2":2,"cli_pedidos":2,"ef_visita":1.12,"ef_venta":100.0},{"ruta":"137137 LUIS DANIEL BURGOS TINEO","anio":"2026","mes":"Mayo","venta":4035.8,"cuota":0,"drop_size":78.9,"cli_itin_mes":75,"cli_visit_mes":45,"cli_itin2":184,"cli_visit2":56,"cli_pedidos":56,"ef_visita":30.43,"ef_venta":100.0},{"ruta":"137137 LUIS DANIEL BURGOS TINEO","anio":"2026","mes":"Junio","venta":564.9,"cuota":0,"drop_size":77.4,"cli_itin_mes":83,"cli_visit_mes":11,"cli_itin2":70,"cli_visit2":11,"cli_pedidos":11,"ef_visita":15.71,"ef_venta":100.0}];
+
+// ── CHARTS REGISTRY ───────────────────────────────────────────────────────────
+const CHARTS = {};
+const LABEL_STATE = {};
+
+// ── COLORS ────────────────────────────────────────────────────────────────────
+const C_BLUE   = '#001464';
+const C_CYAN   = '#3cb4dc';
+const C_GREEN  = '#1a8a5a';
+const C_ORANGE = '#c87700';
+const C_RED    = '#cc3333';
+const C_PURPLE = '#7b2d8b';
+const PALETTE  = ['#001464','#3cb4dc','#1a8a5a','#c87700','#185FA5','#cc3333','#7b2d8b','#0d7a6e','#b35f00','#2e6da4','#5d3e8e','#1a6a35','#8a1a1a','#0077aa','#3a7d44','#7a3b0e','#004080','#a05000'];
+
+const MESES_ORDER = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+// ── FILTER STATE ──────────────────────────────────────────────────────────────
+let fAnio = '', fMes = '', fRuta = '';
+
+function getFiltered() {
+  return RAW.filter(d =>
+    (!fAnio || d.anio === fAnio) &&
+    (!fMes  || d.mes  === fMes)  &&
+    (!fRuta || d.ruta === fRuta)
+  );
+}
+
+// ── INIT FILTERS ──────────────────────────────────────────────────────────────
+function initFilters() {
+  const anios = [...new Set(RAW.map(d=>d.anio))].sort();
+  const meses = [...new Set(RAW.map(d=>d.mes))].sort((a,b)=>MESES_ORDER.indexOf(a)-MESES_ORDER.indexOf(b));
+  const rutas = [...new Set(RAW.map(d=>d.ruta))].sort();
+  const fa = document.getElementById('f-anio');
+  const fm = document.getElementById('f-mes');
+  const fr = document.getElementById('f-ruta');
+  anios.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; fa.appendChild(o); });
+  meses.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; fm.appendChild(o); });
+  rutas.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=shortRuta(v); fr.appendChild(o); });
+  document.getElementById('hdr-ts').textContent = 'Actualizado: ' + new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+function shortRuta(r) { return r.replace(/^\d+\s+/,''); }
+function shortName(r) {
+  const parts = r.replace(/^\d+\s+/,'').split(' ');
+  if(parts.length >= 2) return parts[0] + ' ' + parts[1];
+  return r;
+}
+
+function applyFilters() {
+  fAnio = document.getElementById('f-anio').value;
+  fMes  = document.getElementById('f-mes').value;
+  fRuta = document.getElementById('f-ruta').value;
+  ['f-anio','f-mes','f-ruta'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.toggle('active', el.value !== '');
+  });
+  renderAll();
+}
+
+function resetFilters() {
+  fAnio=''; fMes=''; fRuta='';
+  document.getElementById('f-anio').value='';
+  document.getElementById('f-mes').value='';
+  document.getElementById('f-ruta').value='';
+  ['f-anio','f-mes','f-ruta'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  renderAll();
+}
+
+// ── AGGREGATION HELPERS ────────────────────────────────────────────────────────
+function avg(arr, key) { const v=arr.filter(d=>d[key]>0); return v.length ? v.reduce((s,d)=>s+d[key],0)/v.length : 0; }
+function sum(arr, key) { return arr.reduce((s,d)=>s+(d[key]||0),0); }
+function groupBy(arr, key) {
+  return arr.reduce((acc,d)=>{
+    (acc[d[key]] = acc[d[key]]||[]).push(d);
+    return acc;
+  },{});
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────────────────────
+function renderAll() {
+  const data = getFiltered();
+  document.getElementById('f-count').textContent = data.length + ' registros';
+  renderKPIs(data);
+  renderResumen(data);
+  renderEfectividades(data);
+  renderTendencia(data);
+  renderClientes(data);
+  renderDetalle(data);
+  renderTarjetas(data);
+}
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+function renderKPIs(data) {
+  const efv  = avg(data,'ef_visita');
+  const evta = avg(data,'ef_venta');
+  const drop = avg(data,'drop_size');
+  const visit= sum(data,'cli_visit_mes');
+  const ped  = sum(data,'cli_pedidos');
+
+  const kefvEl = document.getElementById('kpi-efv');
+  kefvEl.textContent = efv.toFixed(1)+'%';
+  kefvEl.className = 'kv ' + kpiClass(efv,60,80);
+
+  const evtaEl = document.getElementById('kpi-evta');
+  evtaEl.textContent = evta.toFixed(1)+'%';
+  evtaEl.className = 'kv ' + kpiClass(evta,40,60);
+
+  document.getElementById('kpi-drop').textContent = 'S/. '+drop.toFixed(0);
+  document.getElementById('kpi-visit').textContent = visit.toLocaleString('es-PE');
+  document.getElementById('kpi-ped').textContent = ped.toLocaleString('es-PE');
+}
+
+function kpiClass(v,lo,hi) {
+  if(v>=hi) return 'pos';
+  if(v>=lo) return 'warn';
+  return 'neg';
+}
+
+// ── RESUMEN ────────────────────────────────────────────────────────────────────
+function renderResumen(data) {
+  const byRuta = groupBy(data,'ruta');
+  const rutas  = Object.keys(byRuta).sort();
+  const labels = rutas.map(shortName);
+  const efv    = rutas.map(r => avg(byRuta[r],'ef_visita'));
+  const evta   = rutas.map(r => avg(byRuta[r],'ef_venta'));
+
+  makeBar('ch1', labels, [{label:'Ef. Visita %', data:efv, backgroundColor: efv.map(v=>v>=80?'#1a8a5a':v>=60?'#c87700':'#cc3333')}], {max:105});
+  makeBar('ch2', labels, [{label:'Ef. Venta %',  data:evta, backgroundColor: evta.map(v=>v>=60?'#1a8a5a':v>=40?'#c87700':'#cc3333')}], {max:105});
+
+  // ranking bars
+  const container = document.getElementById('bars-ranking');
+  const maxEfv = Math.max(...efv,1);
+  const maxEvta = Math.max(...evta,1);
+  const sorted = rutas.map((r,i)=>({r,efv:efv[i],evta:evta[i]})).sort((a,b)=>b.efv-a.efv);
+  container.innerHTML = sorted.map(d=>`
+    <div style="margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:#001464;margin-bottom:4px;">${shortRuta(d.r)}</div>
+      <div class="bar-row">
+        <span class="bl" style="font-size:9px;color:#5a6a80;width:90px;">Ef. Visita</span>
+        <div class="bt"><div class="bf" style="width:${(d.efv/maxEfv*100).toFixed(1)}%;background:${d.efv>=80?'#1a8a5a':d.efv>=60?'#c87700':'#cc3333'};">${d.efv.toFixed(1)}%</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bl" style="font-size:9px;color:#5a6a80;width:90px;">Ef. Venta</span>
+        <div class="bt"><div class="bf" style="width:${(d.evta/maxEvta*100).toFixed(1)}%;background:${d.evta>=60?'#1a8a5a':d.evta>=40?'#c87700':'#cc3333'};">${d.evta.toFixed(1)}%</div></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── EFECTIVIDADES ──────────────────────────────────────────────────────────────
+function renderEfectividades(data) {
+  const byRuta = groupBy(data,'ruta');
+  const rutas  = Object.keys(byRuta).sort();
+  const labels = rutas.map(shortName);
+  const efv    = rutas.map(r => avg(byRuta[r],'ef_visita'));
+  const evta   = rutas.map(r => avg(byRuta[r],'ef_venta'));
+
+  // Pie-like horizontal bar — distribution buckets
+  const bktsV = [{lbl:'≥80% (Alto)',c:'#1a8a5a',min:80},{lbl:'60-80% (Medio)',c:'#c87700',min:60},{lbl:'<60% (Bajo)',c:'#cc3333',min:0}];
+  const bktsE = [{lbl:'≥60% (Alto)',c:'#1a8a5a',min:60},{lbl:'40-60% (Medio)',c:'#c87700',min:40},{lbl:'<40% (Bajo)',c:'#cc3333',min:0}];
+
+  const buckV = bktsV.map(b=>efv.filter((v,i)=>v>=b.min && (b.min===80||v<bktsV[bktsV.indexOf(b)-1]?.min||b.min===0)).length);
+  const buckE = bktsE.map(b=>evta.filter((v,i)=>v>=b.min && (b.min===60||v<bktsE[bktsE.indexOf(b)-1]?.min||b.min===0)).length);
+
+  makeDoughnut('ch3', bktsV.map(b=>b.lbl), efv.reduce((acc,v)=>{
+    if(v>=80) acc[0]++; else if(v>=60) acc[1]++; else acc[2]++;
+    return acc;
+  },[0,0,0]), bktsV.map(b=>b.c));
+
+  makeDoughnut('ch4', bktsE.map(b=>b.lbl), evta.reduce((acc,v)=>{
+    if(v>=60) acc[0]++; else if(v>=40) acc[1]++; else acc[2]++;
+    return acc;
+  },[0,0,0]), bktsE.map(b=>b.c));
+
+  makeBar('ch5', labels, [
+    {label:'Ef. Visita %', data:efv, backgroundColor:'rgba(0,20,100,.75)'},
+    {label:'Ef. Venta %',  data:evta, backgroundColor:'rgba(60,180,220,.75)'}
+  ], {max:110, grouped:true});
+}
+
+// ── TENDENCIA ──────────────────────────────────────────────────────────────────
+function renderTendencia(data) {
+  const meses = [...new Set(data.map(d=>d.mes))].sort((a,b)=>MESES_ORDER.indexOf(a)-MESES_ORDER.indexOf(b));
+  const byRuta = groupBy(data,'ruta');
+  const rutas  = Object.keys(byRuta).sort().slice(0,12); // max 12 rutas en tendencia
+
+  const dsV = rutas.map((r,i)=>({
+    label: shortName(r),
+    data: meses.map(m=>{ const rows=byRuta[r]?.filter(d=>d.mes===m)||[]; return rows.length ? avg(rows,'ef_visita') : null; }),
+    borderColor: PALETTE[i%PALETTE.length],
+    backgroundColor: PALETTE[i%PALETTE.length]+'22',
+    fill:false, tension:.3, pointRadius:4, borderWidth:2
+  }));
+  const dsE = rutas.map((r,i)=>({
+    label: shortName(r),
+    data: meses.map(m=>{ const rows=byRuta[r]?.filter(d=>d.mes===m)||[]; return rows.length ? avg(rows,'ef_venta') : null; }),
+    borderColor: PALETTE[i%PALETTE.length],
+    backgroundColor: PALETTE[i%PALETTE.length]+'22',
+    fill:false, tension:.3, pointRadius:4, borderWidth:2
+  }));
+  makeLine('ch6', meses, dsV, {max:105});
+  makeLine('ch7', meses, dsE, {max:105});
+
+  // Promedio general mensual
+  const prmV = meses.map(m=>avg(data.filter(d=>d.mes===m),'ef_visita'));
+  const prmE = meses.map(m=>avg(data.filter(d=>d.mes===m),'ef_venta'));
+  makeLine('ch8', meses, [
+    {label:'Prom. Ef. Visita', data:prmV, borderColor:C_BLUE, backgroundColor:C_BLUE+'22', fill:true, tension:.3, pointRadius:5, borderWidth:2.5},
+    {label:'Prom. Ef. Venta',  data:prmE, borderColor:C_CYAN, backgroundColor:C_CYAN+'22', fill:true, tension:.3, pointRadius:5, borderWidth:2.5}
+  ], {max:105});
+}
+
+// ── CLIENTES ───────────────────────────────────────────────────────────────────
+function renderClientes(data) {
+  const byRuta = groupBy(data,'ruta');
+  const rutas  = Object.keys(byRuta).sort();
+  const labels = rutas.map(shortName);
+
+  const itin  = rutas.map(r=>sum(byRuta[r],'cli_itin_mes'));
+  const visit = rutas.map(r=>sum(byRuta[r],'cli_visit_mes'));
+  const pedid = rutas.map(r=>sum(byRuta[r],'cli_pedidos'));
+  const drop  = rutas.map(r=>avg(byRuta[r],'drop_size'));
+  const itin2 = rutas.map(r=>sum(byRuta[r],'cli_itin2'));
+  const visit2= rutas.map(r=>sum(byRuta[r],'cli_visit2'));
+  const venta = rutas.map(r=>sum(byRuta[r],'venta'));
+  const cuota = rutas.map(r=>sum(byRuta[r],'cuota'));
+
+  makeBar('ch9', labels, [
+    {label:'Itinerario', data:itin,  backgroundColor:'rgba(0,20,100,.5)'},
+    {label:'Visitados',  data:visit, backgroundColor:'rgba(60,180,220,.8)'}
+  ], {grouped:true});
+  makeBar('ch10', labels, [{label:'Con Pedido', data:pedid, backgroundColor:C_GREEN}], {});
+  makeBar('ch11', labels, [{label:'Drop Size S/.', data:drop, backgroundColor:C_ORANGE}], {});
+  makeBar('ch12', labels, [
+    {label:'Itinerario2', data:itin2,  backgroundColor:'rgba(0,20,100,.5)'},
+    {label:'Visitados2',  data:visit2, backgroundColor:'rgba(60,180,220,.8)'}
+  ], {grouped:true});
+  makeBar('ch13', labels, [
+    {label:'Venta S/.', data:venta, backgroundColor:C_GREEN},
+    {label:'Cuota S/.', data:cuota.map(v=>Math.max(v,0)), backgroundColor:'rgba(200,119,0,.7)'}
+  ], {grouped:true, money:true});
+}
+
+// ── DETALLE TABLE ──────────────────────────────────────────────────────────────
+function renderDetalle(data) {
+  const sorted = [...data].sort((a,b)=>a.ruta.localeCompare(b.ruta)||MESES_ORDER.indexOf(a.mes)-MESES_ORDER.indexOf(b.mes));
+  const tb = document.getElementById('tbl-body');
+  if(!sorted.length){ tb.innerHTML='<tr><td colspan="12" class="empty">Sin datos para los filtros seleccionados</td></tr>'; return; }
+  const cumpl = d => d.cuota > 0 ? (d.venta/d.cuota*100) : 0;
+  tb.innerHTML = sorted.map(d=>`
+    <tr>
+      <td style="font-size:10px;font-weight:600;">${shortRuta(d.ruta)}</td>
+      <td class="c">${d.anio}</td>
+      <td class="c">${d.mes}</td>
+      <td class="r">S/. ${d.venta.toLocaleString('es-PE',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+      <td class="r">S/. ${d.cuota.toLocaleString('es-PE',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+      <td class="r"><span class="pill ${cumpl(d)>=100?'pg':cumpl(d)>=80?'py':'pr'}">${cumpl(d).toFixed(1)}%</span></td>
+      <td class="r">S/. ${d.drop_size.toFixed(0)}</td>
+      <td class="r">${d.cli_itin_mes}</td>
+      <td class="r">${d.cli_visit_mes}</td>
+      <td class="r">${d.cli_pedidos}</td>
+      <td class="r"><span class="pill ${d.ef_visita>=80?'pg':d.ef_visita>=60?'py':'pr'}">${d.ef_visita.toFixed(1)}%</span></td>
+      <td class="r"><span class="pill ${d.ef_venta>=60?'pg':d.ef_venta>=40?'py':'pr'}">${d.ef_venta.toFixed(1)}%</span></td>
+    </tr>
+  `).join('');
+}
+
+// ── TARJETAS VENDEDOR ─────────────────────────────────────────────────────────
+let vSortKey = 'ef_visita';
+
+function setVSort(key) {
+  vSortKey = key;
+  document.querySelectorAll('.vc-sort-btn').forEach(b => b.classList.remove('on'));
+  const id = {ef_visita:'vsort-efv',ef_venta:'vsort-evta',drop_size:'vsort-drop',cli_visit_mes:'vsort-visit',venta:'vsort-venta',nombre:'vsort-name'}[key];
+  if(id) document.getElementById(id)?.classList.add('on');
+  renderTarjetas(getFiltered());
+}
+
+const VC_COLORS = ['#001464','#185FA5','#1a8a5a','#c87700','#cc3333','#7b2d8b','#0d7a6e','#3cb4dc','#b35f00','#5d3e8e','#0077aa','#3a7d44','#8a1a1a','#7a3b0e','#004080','#a05000','#4a5568','#2d6a8e'];
+
+function initials(name) {
+  const parts = name.replace(/^\d+\s*/,'').split(' ').filter(Boolean);
+  return (parts[0]?.[0]||'') + (parts[1]?.[0]||'');
+}
+
+function gauge(pct, color, size=68) {
+  const r = (size/2) - 6;
+  const circ = 2 * Math.PI * r;
+  const fill = Math.min(pct, 100) / 100 * circ;
+  const cx = size/2, cy = size/2;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#eef3f8" stroke-width="5"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="5"
+      stroke-dasharray="${fill.toFixed(1)} ${circ.toFixed(1)}"
+      stroke-dashoffset="${circ/4}" stroke-linecap="round"
+      transform="rotate(-90 ${cx} ${cy})"/>
+  </svg>`;
+}
+
+function sparkline(values, color, w=220, h=32) {
+  if(!values || values.length < 2) return '';
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = max - min || 1;
+  const pts = values.map((v, i) => {
+    const x = (i / (values.length - 1)) * (w - 12) + 6;
+    const y = h - 6 - ((v - min) / range) * (h - 12);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const dotColor = color;
+  const dots = values.map((v, i) => {
+    const x = (i / (values.length - 1)) * (w - 12) + 6;
+    const y = h - 6 - ((v - min) / range) * (h - 12);
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${dotColor}"/>`;
+  }).join('');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible;">
+    <polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}
+  </svg>`;
+}
+
+function renderTarjetas(data) {
+  const MESES = ['Abril','Mayo','Junio'];
+  const byRuta = groupBy(data, 'ruta');
+  const rutas  = Object.keys(byRuta).sort();
+
+  // Calcular métricas agregadas por ruta
+  let cards = rutas.map((ruta, i) => {
+    const rows = byRuta[ruta];
+    const efv  = avg(rows, 'ef_visita');
+    const evta = avg(rows, 'ef_venta');
+    const drop = avg(rows, 'drop_size');
+    const vis  = sum(rows, 'cli_visit_mes');
+    const itin = sum(rows, 'cli_itin_mes');
+    const ped  = sum(rows, 'cli_pedidos');
+    const venta= sum(rows, 'venta');
+    const cuota= sum(rows, 'cuota');
+    const cumpl= cuota > 0 ? (venta/cuota*100) : 0;
+    // Tendencia: ef_visita y ef_venta por mes en orden
+    const trenV = MESES.map(m => { const r=rows.find(d=>d.mes===m); return r ? r.ef_visita : null; });
+    const trenE = MESES.map(m => { const r=rows.find(d=>d.mes===m); return r ? r.ef_venta : null; });
+    const nombre = ruta.replace(/^\d+\s*/,'');
+    return {ruta, nombre, i, efv, evta, drop, vis, itin, ped, venta, cuota, cumpl, trenV, trenE};
+  });
+
+  // Ordenar
+  if(vSortKey === 'nombre') cards.sort((a,b) => a.nombre.localeCompare(b.nombre));
+  else cards.sort((a,b) => b[vSortKey] - a[vSortKey]);
+
+  document.getElementById('vc-count-lbl').textContent = cards.length + ' vendedores';
+
+  if(!cards.length) {
+    document.getElementById('vc-grid').innerHTML = '<div class="empty" style="grid-column:1/-1">Sin datos para los filtros seleccionados</div>';
+    return;
+  }
+
+  document.getElementById('vc-grid').innerHTML = cards.map((c, idx) => {
+    const color  = VC_COLORS[c.i % VC_COLORS.length];
+    const efvClr = c.efv >= 80 ? '#1a8a5a' : c.efv >= 60 ? '#c87700' : '#cc3333';
+    const evtClr = c.evta >= 60 ? '#1a8a5a' : c.evta >= 40 ? '#c87700' : '#cc3333';
+    const cumpClr= c.cumpl>=100?'#1a8a5a':c.cumpl>=80?'#c87700':'#cc3333';
+    const statusTxt = c.efv>=80?'Alto':c.efv>=60?'Medio':'Bajo';
+    const statusClr = c.efv>=80?'#E8F5E2;color:#1a6a35':c.efv>=60?'#FFF3CD;color:#7a5200':'#FDECEA;color:#8a1a1a';
+
+    // Tendencia: solo valores no nulos
+    const validV = c.trenV.filter(v=>v!==null);
+    const validE = c.trenE.filter(v=>v!==null);
+    const mesLabels = MESES.filter((_,i)=>c.trenV[i]!==null);
+
+    // Mini sparkline dots labelled
+    const spkV = validV.length >= 2 ? sparkline(validV, efvClr) : '';
+    const spkE = validE.length >= 2 ? sparkline(validE, evtClr) : '';
+
+    const spkMeses = mesLabels.length > 0 ? `<div style="display:flex;justify-content:space-between;margin-top:1px;">${mesLabels.map(m=>`<span style="font-size:8px;color:#a0aebf;">${m.substring(0,3)}</span>`).join('')}</div>` : '';
+
+    // Fila de meses con valores
+    const mesRow = MESES.map(m => {
+      const r = c.trenV.find ? null : null;
+      const idx2 = MESES.indexOf(m);
+      const vv = c.trenV[idx2];
+      const ve = c.trenE[idx2];
+      if(vv === null) return '';
+      return `<div style="text-align:center;min-width:52px;">
+        <div style="font-size:8px;color:#8a9ab0;font-weight:700;">${m.substring(0,3)}</div>
+        <div style="font-size:10px;font-weight:800;color:${efvClr};">${vv.toFixed(1)}%</div>
+        <div style="font-size:9px;color:${evtClr};font-weight:600;">${ve.toFixed(1)}%</div>
+      </div>`;
+    }).join('');
+
+    return `
+    <div class="vc">
+      <div class="vc-head">
+        <div class="vc-avatar" style="background:${color};">${initials(c.ruta)}</div>
+        <div>
+          <div class="vc-name">${c.nombre.split(' ').slice(0,3).join(' ')}</div>
+          <div class="vc-code">${c.ruta.match(/^\d+/)?.[0] || ''}</div>
+        </div>
+        <span class="vc-status" style="background:${statusClr.split(';')[0]};${statusClr.split(';')[1]}">${statusTxt}</span>
+      </div>
+
+      <div class="vc-gauges">
+        <div class="vc-gauge">
+          <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;">
+            ${gauge(c.efv, efvClr, 72)}
+            <span class="vc-gval" style="position:absolute;color:${efvClr};">${c.efv.toFixed(0)}%</span>
+          </div>
+          <div class="vc-glabel">Ef. Visita</div>
+        </div>
+        <div style="width:1px;height:60px;background:#f0f4f9;"></div>
+        <div class="vc-gauge">
+          <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;">
+            ${gauge(c.evta, evtClr, 72)}
+            <span class="vc-gval" style="position:absolute;color:${evtClr};">${c.evta.toFixed(0)}%</span>
+          </div>
+          <div class="vc-glabel">Ef. Venta</div>
+        </div>
+        <div style="width:1px;height:60px;background:#f0f4f9;"></div>
+        <div class="vc-gauge">
+          <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;">
+            ${gauge(Math.min(c.cumpl,100), cumpClr, 72)}
+            <span class="vc-gval" style="position:absolute;color:${cumpClr};font-size:13px;">${c.cumpl.toFixed(0)}%</span>
+          </div>
+          <div class="vc-glabel">Cumpl.</div>
+        </div>
+      </div>
+
+      <div class="vc-metrics">
+        <div class="vc-m">
+          <div class="vc-ml">Drop Size</div>
+          <div class="vc-mv">S/. ${c.drop.toFixed(0)}</div>
+        </div>
+        <div class="vc-m">
+          <div class="vc-ml">Visitados / Itin.</div>
+          <div class="vc-mv">${c.vis.toLocaleString()} / ${c.itin.toLocaleString()}</div>
+        </div>
+        <div class="vc-m">
+          <div class="vc-ml">Con Pedido</div>
+          <div class="vc-mv">${c.ped.toLocaleString()}</div>
+        </div>
+        <div class="vc-m">
+          <div class="vc-ml">Venta Total</div>
+          <div class="vc-mv">S/. ${(c.venta/1000).toFixed(1)}k</div>
+        </div>
+      </div>
+
+      <div class="vc-spark">
+        <div class="vc-sparklabel">Tendencia Mensual</div>
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:4px;">
+          ${mesRow || '<span style="font-size:9px;color:#a0aebf;">Sin datos de tendencia</span>'}
+        </div>
+        ${spkV ? `<div style="margin-top:4px;">${spkV}</div><div style="display:flex;justify-content:space-between;">${mesLabels.map(m=>`<span style="font-size:8px;color:#a0aebf;">${m.substring(0,3)}</span>`).join('')}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── CHART HELPERS ─────────────────────────────────────────────────────────────
+function destroyChart(id) { if(CHARTS[id]){ CHARTS[id].destroy(); delete CHARTS[id]; } }
+
+function makeBar(id, labels, datasets, opts={}) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if(!ctx) return;
+  const grouped = opts.grouped || false;
+  const money   = opts.money   || false;
+  CHARTS[id] = new Chart(ctx, {
+    type:'bar',
+    data:{labels, datasets: datasets.map(ds=>({...ds, borderRadius:4, borderSkipped:false}))},
+    options:{
+      responsive:true,
+      indexAxis: labels.length > 8 ? 'y' : 'x',
+      plugins:{
+        legend:{display:grouped, position:'top', labels:{font:{family:'Nunito',size:10}, boxWidth:10}},
+        datalabels:{
+          display: LABEL_STATE[id]!==false,
+          color:'#001464', font:{family:'Nunito',size:8,weight:'700'},
+          formatter: v => money ? 'S/.'+(v/1000).toFixed(0)+'k' : (typeof v==='number'?v.toFixed(1)+(opts.max?'%':''):''),
+          anchor: labels.length>8?'end':'end', align: labels.length>8?'right':'top'
+        }
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{family:'Nunito',size:9}}},
+        y:{max:opts.max, grid:{color:'#eef3f8'}, ticks:{font:{family:'Nunito',size:9}}, beginAtZero:true}
+      }
+    }
+  });
+  LABEL_STATE[id] = LABEL_STATE[id]!==false ? true : false;
+}
+
+function makeLine(id, labels, datasets, opts={}) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if(!ctx) return;
+  CHARTS[id] = new Chart(ctx, {
+    type:'line',
+    data:{labels, datasets},
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{display:true, position:'top', labels:{font:{family:'Nunito',size:10}, boxWidth:10}},
+        datalabels:{
+          display: LABEL_STATE[id]!==false,
+          color:'#001464', font:{family:'Nunito',size:8,weight:'700'},
+          formatter: v => v!=null ? v.toFixed(1)+'%' : '',
+          backgroundColor:'rgba(255,255,255,.7)', borderRadius:3, padding:2
+        }
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{family:'Nunito',size:9}}},
+        y:{max:opts.max, grid:{color:'#eef3f8'}, ticks:{font:{family:'Nunito',size:9}}, beginAtZero:true}
+      }
+    }
+  });
+  LABEL_STATE[id] = LABEL_STATE[id]!==false ? true : false;
+}
+
+function makeDoughnut(id, labels, data, colors) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if(!ctx) return;
+  CHARTS[id] = new Chart(ctx, {
+    type:'doughnut',
+    data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:2, borderColor:'#fff'}]},
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{position:'bottom', labels:{font:{family:'Nunito',size:10}, boxWidth:10}},
+        datalabels:{
+          display:true,
+          color:'#fff', font:{family:'Nunito',size:11,weight:'900'},
+          formatter: (v,ctx2)=>{ const tot=ctx2.dataset.data.reduce((a,b)=>a+b,0); return tot?((v/tot*100).toFixed(0)+'%'):''; }
+        }
+      },
+      cutout:'55%'
+    }
+  });
+}
+
+function toggleLabels(id) {
+  LABEL_STATE[id] = !LABEL_STATE[id];
+  const btn = document.getElementById('lbl-'+id);
+  if(btn) btn.classList.toggle('on', LABEL_STATE[id]);
+  if(CHARTS[id]) {
+    CHARTS[id].options.plugins.datalabels.display = LABEL_STATE[id];
+    CHARTS[id].update();
+  }
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(el, id) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById(id).classList.add('on');
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────────────────
+initFilters();
+renderAll();
+</script>
+</body>
+</html>
