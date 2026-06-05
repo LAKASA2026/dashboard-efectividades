@@ -100,28 +100,33 @@ canvas{max-height:300px;}
 .lbl-btn.on{background:#001464;color:#fff;border-color:#001464;}
 .empty{color:#a0aebf;font-size:12px;padding:20px;text-align:center;font-style:italic;}
 /* TARJETAS VENDEDOR */
-.vc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;}
-.vc{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,20,100,.08),0 0 0 1px rgba(0,20,100,.05);transition:box-shadow .2s,transform .15s;position:relative;}
-.vc:hover{box-shadow:0 6px 20px rgba(0,20,100,.14),0 0 0 1px rgba(60,180,220,.3);transform:translateY(-2px);}
-.vc-head{padding:14px 16px 10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0f4f9;}
-.vc-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0;letter-spacing:-.5px;}
-.vc-name{font-size:11px;font-weight:800;color:#001464;line-height:1.3;}
-.vc-code{font-size:9px;color:#8a9ab0;font-weight:600;margin-top:1px;}
-.vc-status{margin-left:auto;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
-.vc-gauges{display:flex;justify-content:space-around;align-items:center;padding:14px 12px 8px;}
-.vc-gauge{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.vc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;}
+.vc{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,20,100,.08),0 0 0 1px rgba(0,20,100,.05);transition:box-shadow .2s,transform .15s;position:relative;}
+.vc:hover{box-shadow:0 4px 14px rgba(0,20,100,.14),0 0 0 1px rgba(60,180,220,.3);transform:translateY(-2px);}
+/* Cabecera compacta */
+.vc-head{padding:8px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f0f4f9;}
+.vc-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;flex-shrink:0;letter-spacing:-.5px;}
+.vc-name{font-size:10px;font-weight:800;color:#001464;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;}
+.vc-code{font-size:8px;color:#8a9ab0;font-weight:600;}
+.vc-status{margin-left:auto;font-size:8px;font-weight:700;padding:2px 6px;border-radius:8px;white-space:nowrap;flex-shrink:0;}
+/* Banda comercial: Venta · Cuota · Cumplimiento */
+.vc-comercial{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid #f0f4f9;}
+.vc-com{padding:5px 0;text-align:center;}
+.vc-com:not(:last-child){border-right:1px solid #f0f4f9;}
+.vc-coml{font-size:7px;color:#8a9ab0;text-transform:uppercase;letter-spacing:.4px;font-weight:700;}
+.vc-comv{font-size:11px;font-weight:900;line-height:1.2;}
+/* Gauges compactos */
+.vc-gauges{display:flex;justify-content:space-around;align-items:center;padding:8px 8px 4px;}
+.vc-gauge{display:flex;flex-direction:column;align-items:center;gap:2px;}
 .vc-gauge svg{overflow:visible;}
-.vc-glabel{font-size:9px;color:#5a6a80;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
-.vc-gval{font-size:16px;font-weight:900;line-height:1;}
-.vc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid #f0f4f9;}
-.vc-m{padding:8px 12px;border-right:1px solid #f0f4f9;border-bottom:1px solid #f0f4f9;}
-.vc-m:nth-child(even){border-right:none;}
-.vc-m:nth-last-child(-n+2){border-bottom:none;}
-.vc-ml{font-size:8px;color:#8a9ab0;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:2px;}
-.vc-mv{font-size:12px;font-weight:800;color:#1a2332;}
-.vc-spark{padding:8px 12px 12px;border-top:1px solid #f0f4f9;}
-.vc-sparklabel{font-size:8px;color:#8a9ab0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
-.vc-bar-sort{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.vc-glabel{font-size:8px;color:#5a6a80;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
+.vc-gval{font-size:13px;font-weight:900;line-height:1;}
+/* Métricas inferiores en fila de 3 */
+.vc-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid #f0f4f9;}
+.vc-m{padding:5px 6px;border-right:1px solid #f0f4f9;}
+.vc-m:last-child{border-right:none;}
+.vc-ml{font-size:7px;color:#8a9ab0;text-transform:uppercase;letter-spacing:.4px;font-weight:700;margin-bottom:1px;}
+.vc-mv{font-size:10px;font-weight:800;color:#1a2332;}
 .vc-sort-btn{padding:3px 10px;border:1px solid #dde6f0;border-radius:12px;font-size:10px;background:#f5f8fc;color:#5a6a80;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;}
 .vc-sort-btn:hover{border-color:#3cb4dc;color:#001464;}
 .vc-sort-btn.on{background:#001464;color:#fff;border-color:#001464;}
@@ -366,9 +371,10 @@ canvas{max-height:300px;}
       <span style="font-size:10px;font-weight:700;color:#5a6a80;text-transform:uppercase;letter-spacing:.6px;">Ordenar por:</span>
       <button class="vc-sort-btn on" id="vsort-efv"   onclick="setVSort('ef_visita')">Ef. Visita</button>
       <button class="vc-sort-btn"    id="vsort-evta"  onclick="setVSort('ef_venta')">Ef. Venta</button>
+      <button class="vc-sort-btn"    id="vsort-cumpl" onclick="setVSort('cumpl')">Cumplimiento</button>
+      <button class="vc-sort-btn"    id="vsort-venta" onclick="setVSort('venta')">Venta</button>
       <button class="vc-sort-btn"    id="vsort-drop"  onclick="setVSort('drop_size')">Drop Size</button>
       <button class="vc-sort-btn"    id="vsort-visit" onclick="setVSort('cli_visit_mes')">Visitados</button>
-      <button class="vc-sort-btn"    id="vsort-venta" onclick="setVSort('venta')">Venta</button>
       <button class="vc-sort-btn"    id="vsort-name"  onclick="setVSort('nombre')">Nombre A-Z</button>
       <span style="margin-left:auto;font-size:10px;color:#5a6a80;" id="vc-count-lbl"></span>
     </div>
@@ -779,7 +785,7 @@ let vSortKey = 'ef_visita';
 function setVSort(key) {
   vSortKey = key;
   document.querySelectorAll('.vc-sort-btn').forEach(b => b.classList.remove('on'));
-  const id = {ef_visita:'vsort-efv',ef_venta:'vsort-evta',drop_size:'vsort-drop',cli_visit_mes:'vsort-visit',venta:'vsort-venta',nombre:'vsort-name'}[key];
+  const id = {ef_visita:'vsort-efv',ef_venta:'vsort-evta',cumpl:'vsort-cumpl',venta:'vsort-venta',drop_size:'vsort-drop',cli_visit_mes:'vsort-visit',nombre:'vsort-name'}[key];
   if(id) document.getElementById(id)?.classList.add('on');
   renderTarjetas(getFiltered());
 }
@@ -863,101 +869,87 @@ function renderTarjetas(data) {
   }
 
   document.getElementById('vc-grid').innerHTML = cards.map((c, idx) => {
-    const color  = VC_COLORS[c.i % VC_COLORS.length];
-    const efvClr = c.efv >= 80 ? '#1a8a5a' : c.efv >= 60 ? '#c87700' : '#cc3333';
-    const evtClr = c.evta >= 60 ? '#1a8a5a' : c.evta >= 40 ? '#c87700' : '#cc3333';
-    const cumpClr= c.cumpl>=100?'#1a8a5a':c.cumpl>=80?'#c87700':'#cc3333';
-    const statusTxt = c.efv>=80?'Alto':c.efv>=60?'Medio':'Bajo';
-    const statusClr = c.efv>=80?'#E8F5E2;color:#1a6a35':c.efv>=60?'#FFF3CD;color:#7a5200':'#FDECEA;color:#8a1a1a';
+    const color   = VC_COLORS[c.i % VC_COLORS.length];
+    const efvClr  = c.efv  >= 80 ? '#1a8a5a' : c.efv  >= 60 ? '#c87700' : '#cc3333';
+    const evtClr  = c.evta >= 60 ? '#1a8a5a' : c.evta >= 40 ? '#c87700' : '#cc3333';
+    const cumpClr = c.cumpl >= 100 ? '#1a8a5a' : c.cumpl >= 80 ? '#c87700' : '#cc3333';
+    const statusTxt = c.efv >= 80 ? 'Alto' : c.efv >= 60 ? 'Medio' : 'Bajo';
+    const statusBg  = c.efv >= 80 ? '#E8F5E2' : c.efv >= 60 ? '#FFF3CD' : '#FDECEA';
+    const statusFg  = c.efv >= 80 ? '#1a6a35'  : c.efv >= 60 ? '#7a5200'  : '#8a1a1a';
 
-    // Tendencia: solo valores no nulos
-    const validV = c.trenV.filter(v=>v!==null);
-    const validE = c.trenE.filter(v=>v!==null);
-    const mesLabels = MESES.filter((_,i)=>c.trenV[i]!==null);
+    // Formato moneda compacto
+    const fmt = v => Math.abs(v) >= 1e6 ? 'S/.'+(v/1e6).toFixed(1)+'M'
+                   : Math.abs(v) >= 1e3 ? 'S/.'+(v/1e3).toFixed(1)+'K'
+                   : 'S/.'+v.toFixed(0);
 
-    // Mini sparkline dots labelled
-    const spkV = validV.length >= 2 ? sparkline(validV, efvClr) : '';
-    const spkE = validE.length >= 2 ? sparkline(validE, evtClr) : '';
-
-    const spkMeses = mesLabels.length > 0 ? `<div style="display:flex;justify-content:space-between;margin-top:1px;">${mesLabels.map(m=>`<span style="font-size:8px;color:#a0aebf;">${m.substring(0,3)}</span>`).join('')}</div>` : '';
-
-    // Fila de meses con valores
-    const mesRow = MESES.map(m => {
-      const r = c.trenV.find ? null : null;
-      const idx2 = MESES.indexOf(m);
-      const vv = c.trenV[idx2];
-      const ve = c.trenE[idx2];
-      if(vv === null) return '';
-      return `<div style="text-align:center;min-width:52px;">
-        <div style="font-size:8px;color:#8a9ab0;font-weight:700;">${m.substring(0,3)}</div>
-        <div style="font-size:10px;font-weight:800;color:${efvClr};">${vv.toFixed(1)}%</div>
-        <div style="font-size:9px;color:${evtClr};font-weight:600;">${ve.toFixed(1)}%</div>
-      </div>`;
-    }).join('');
+    // Nombre: primeras 2 palabras
+    const nombre2 = c.nombre.split(' ').slice(0,2).join(' ');
+    const codigo  = c.ruta.match(/^\d+/)?.[0] || '';
 
     return `
     <div class="vc">
-      <div class="vc-head">
+
+      <!-- CABECERA -->
+      <div class="vc-head" style="border-left:3px solid ${color};">
         <div class="vc-avatar" style="background:${color};">${initials(c.ruta)}</div>
-        <div>
-          <div class="vc-name">${c.nombre.split(' ').slice(0,3).join(' ')}</div>
-          <div class="vc-code">${c.ruta.match(/^\d+/)?.[0] || ''}</div>
+        <div style="min-width:0;">
+          <div class="vc-name" title="${c.nombre}">${nombre2}</div>
+          <div class="vc-code">${codigo}</div>
         </div>
-        <span class="vc-status" style="background:${statusClr.split(';')[0]};${statusClr.split(';')[1]}">${statusTxt}</span>
+        <span class="vc-status" style="background:${statusBg};color:${statusFg};">${statusTxt}</span>
       </div>
 
+      <!-- BANDA COMERCIAL: Venta · Cuota · Cumplimiento -->
+      <div class="vc-comercial">
+        <div class="vc-com">
+          <div class="vc-coml">Venta</div>
+          <div class="vc-comv" style="color:#1a8a5a;">${fmt(c.venta)}</div>
+        </div>
+        <div class="vc-com">
+          <div class="vc-coml">Cuota</div>
+          <div class="vc-comv" style="color:#c87700;">${fmt(Math.max(c.cuota,0))}</div>
+        </div>
+        <div class="vc-com">
+          <div class="vc-coml">Cumpl.</div>
+          <div class="vc-comv" style="color:${cumpClr};">${c.cumpl.toFixed(0)}%</div>
+        </div>
+      </div>
+
+      <!-- GAUGES: Ef. Visita + Ef. Venta -->
       <div class="vc-gauges">
         <div class="vc-gauge">
           <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;">
-            ${gauge(c.efv, efvClr, 72)}
-            <span class="vc-gval" style="position:absolute;color:${efvClr};">${c.efv.toFixed(0)}%</span>
+            ${gauge(c.efv, efvClr, 56)}
+            <span class="vc-gval" style="position:absolute;color:${efvClr};font-size:12px;">${c.efv.toFixed(0)}%</span>
           </div>
           <div class="vc-glabel">Ef. Visita</div>
         </div>
-        <div style="width:1px;height:60px;background:#f0f4f9;"></div>
+        <div style="width:1px;height:48px;background:#f0f4f9;"></div>
         <div class="vc-gauge">
           <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;">
-            ${gauge(c.evta, evtClr, 72)}
-            <span class="vc-gval" style="position:absolute;color:${evtClr};">${c.evta.toFixed(0)}%</span>
+            ${gauge(c.evta, evtClr, 56)}
+            <span class="vc-gval" style="position:absolute;color:${evtClr};font-size:12px;">${c.evta.toFixed(0)}%</span>
           </div>
           <div class="vc-glabel">Ef. Venta</div>
         </div>
-        <div style="width:1px;height:60px;background:#f0f4f9;"></div>
-        <div class="vc-gauge">
-          <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;">
-            ${gauge(Math.min(c.cumpl,100), cumpClr, 72)}
-            <span class="vc-gval" style="position:absolute;color:${cumpClr};font-size:13px;">${c.cumpl.toFixed(0)}%</span>
-          </div>
-          <div class="vc-glabel">Cumpl.</div>
-        </div>
       </div>
 
+      <!-- MÉTRICAS INFERIORES: Drop · Visitados · Pedidos -->
       <div class="vc-metrics">
         <div class="vc-m">
           <div class="vc-ml">Drop Size</div>
-          <div class="vc-mv">S/. ${c.drop.toFixed(0)}</div>
+          <div class="vc-mv">S/.${c.drop.toFixed(0)}</div>
         </div>
         <div class="vc-m">
-          <div class="vc-ml">Visitados / Itin.</div>
-          <div class="vc-mv">${c.vis.toLocaleString()} / ${c.itin.toLocaleString()}</div>
+          <div class="vc-ml">Visit./Itin.</div>
+          <div class="vc-mv">${c.vis}/${c.itin}</div>
         </div>
         <div class="vc-m">
-          <div class="vc-ml">Con Pedido</div>
-          <div class="vc-mv">${c.ped.toLocaleString()}</div>
-        </div>
-        <div class="vc-m">
-          <div class="vc-ml">Venta Total</div>
-          <div class="vc-mv">S/. ${(c.venta/1000).toFixed(1)}k</div>
+          <div class="vc-ml">Pedidos</div>
+          <div class="vc-mv">${c.ped}</div>
         </div>
       </div>
 
-      <div class="vc-spark">
-        <div class="vc-sparklabel">Tendencia Mensual</div>
-        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:4px;">
-          ${mesRow || '<span style="font-size:9px;color:#a0aebf;">Sin datos de tendencia</span>'}
-        </div>
-        ${spkV ? `<div style="margin-top:4px;">${spkV}</div><div style="display:flex;justify-content:space-between;">${mesLabels.map(m=>`<span style="font-size:8px;color:#a0aebf;">${m.substring(0,3)}</span>`).join('')}</div>` : ''}
-      </div>
     </div>`;
   }).join('');
 }
