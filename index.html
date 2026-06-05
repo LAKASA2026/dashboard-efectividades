@@ -51,7 +51,7 @@ select.fs.active{border-color:#001464;background:#dde9ff;font-weight:700;}
 .btn-reset:hover{background:#fce8e6;border-color:#cc3333;color:#cc3333;}
 .fn{font-size:11px;color:#185FA5;font-weight:700;margin-left:auto;background:#e3f0ff;padding:4px 10px;border-radius:12px;white-space:nowrap;}
 /* KPI ROW */
-.krow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:14px 20px;background:#f0efe9;border-bottom:1px solid #e5e2d9;}
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px;background:#f0efe9;border-bottom:1px solid #e5e2d9;}
 .kpi{background:#fff;border-radius:10px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,20,100,.06),0 0 0 1px rgba(0,20,100,.04);position:relative;overflow:hidden;}
 .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;}
 .kl{font-size:9px;color:#5a6a80;text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-bottom:5px;}
@@ -125,7 +125,8 @@ canvas{max-height:300px;}
 .vc-sort-btn{padding:3px 10px;border:1px solid #dde6f0;border-radius:12px;font-size:10px;background:#f5f8fc;color:#5a6a80;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;}
 .vc-sort-btn:hover{border-color:#3cb4dc;color:#001464;}
 .vc-sort-btn.on{background:#001464;color:#fff;border-color:#001464;}
-@media(max-width:900px){.krow{grid-template-columns:repeat(3,1fr);}.card-grid2,.card-grid3{grid-template-columns:1fr;}}
+@media(max-width:1100px){.krow{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:900px){.krow{grid-template-columns:repeat(4,1fr);}.card-grid2,.card-grid3{grid-template-columns:1fr;}}
 @media(max-width:600px){.krow{grid-template-columns:repeat(2,1fr);}.hdr{flex-wrap:wrap;gap:8px;}.vc-grid{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
@@ -190,7 +191,33 @@ canvas{max-height:300px;}
 
 <!-- KPI ROW -->
 <div class="krow">
-  <div class="kpi" style="--c1:#001464;--c2:#3cb4dc;">
+  <!-- Fila 1: Comerciales -->
+  <div class="kpi">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#1a8a5a,#2eb87a);"></div>
+    <div class="kl">&#9660; Venta Total</div>
+    <div class="kv" id="kpi-venta" style="color:#1a8a5a;">—</div>
+    <div class="kd" id="kpi-venta-d">Suma acumulada (S/.)</div>
+  </div>
+  <div class="kpi">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#c87700,#f0a500);"></div>
+    <div class="kl">&#9651; Cuota Total</div>
+    <div class="kv" id="kpi-cuota" style="color:#c87700;">—</div>
+    <div class="kd">Suma acumulada (S/.)</div>
+  </div>
+  <div class="kpi">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#185FA5,#3cb4dc);"></div>
+    <div class="kl">&#9685; Cumplimiento</div>
+    <div class="kv" id="kpi-cumpl" style="color:#185FA5;">—</div>
+    <div class="kd">Venta / Cuota</div>
+  </div>
+  <div class="kpi">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#c87700,#f0a500);"></div>
+    <div class="kl">Drop Size Prom.</div>
+    <div class="kv" id="kpi-drop" style="color:#c87700;">—</div>
+    <div class="kd">Venta / Clientes con Pedido</div>
+  </div>
+  <!-- Fila 2: Operativos -->
+  <div class="kpi">
     <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#001464,#3cb4dc);"></div>
     <div class="kl">Ef. Visita Prom.</div>
     <div class="kv" id="kpi-efv" style="color:#001464;">—</div>
@@ -201,12 +228,6 @@ canvas{max-height:300px;}
     <div class="kl">Ef. Venta Prom.</div>
     <div class="kv" id="kpi-evta" style="color:#1a8a5a;">—</div>
     <div class="kd">Pedidos / Visitados</div>
-  </div>
-  <div class="kpi">
-    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#c87700,#f0a500);"></div>
-    <div class="kl">Drop Size Prom.</div>
-    <div class="kv" id="kpi-drop" style="color:#c87700;">—</div>
-    <div class="kd">Venta / Clientes con Pedido</div>
   </div>
   <div class="kpi">
     <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#185FA5,#3cb4dc);"></div>
@@ -556,24 +577,45 @@ function renderAll() {
 }
 
 // ── KPIs ──────────────────────────────────────────────────────────────────────
-function renderKPIs(data) {
-  const efv  = avg(data,'ef_visita');
-  const evta = avg(data,'ef_venta');
-  const drop = avg(data,'drop_size');
-  const visit= sum(data,'cli_visit_mes');
-  const ped  = sum(data,'cli_pedidos');
+function fmtMiles(v) {
+  if(Math.abs(v) >= 1e6) return 'S/. '+(v/1e6).toFixed(2)+'M';
+  if(Math.abs(v) >= 1e3) return 'S/. '+(v/1e3).toFixed(1)+'K';
+  return 'S/. '+v.toFixed(0);
+}
 
+function renderKPIs(data) {
+  const efv   = avg(data, 'ef_visita');
+  const evta  = avg(data, 'ef_venta');
+  const drop  = avg(data, 'drop_size');
+  const visit = sum(data, 'cli_visit_mes');
+  const ped   = sum(data, 'cli_pedidos');
+  const venta = sum(data, 'venta');
+  const cuota = sum(data, 'cuota');
+  const cumpl = cuota > 0 ? (venta / cuota * 100) : 0;
+
+  // Comerciales
+  document.getElementById('kpi-venta').textContent  = fmtMiles(venta);
+  document.getElementById('kpi-cuota').textContent  = fmtMiles(cuota);
+
+  const cumplEl = document.getElementById('kpi-cumpl');
+  cumplEl.textContent  = cumpl.toFixed(1) + '%';
+  cumplEl.className    = 'kv ' + kpiClass(cumpl, 80, 100);
+
+  document.getElementById('kpi-venta-d').textContent =
+    'Cuota: ' + fmtMiles(cuota);
+
+  // Operativos
   const kefvEl = document.getElementById('kpi-efv');
   kefvEl.textContent = efv.toFixed(1)+'%';
-  kefvEl.className = 'kv ' + kpiClass(efv,60,80);
+  kefvEl.className   = 'kv ' + kpiClass(efv, 60, 80);
 
   const evtaEl = document.getElementById('kpi-evta');
   evtaEl.textContent = evta.toFixed(1)+'%';
-  evtaEl.className = 'kv ' + kpiClass(evta,40,60);
+  evtaEl.className   = 'kv ' + kpiClass(evta, 40, 60);
 
-  document.getElementById('kpi-drop').textContent = 'S/. '+drop.toFixed(0);
+  document.getElementById('kpi-drop').textContent  = 'S/. '+drop.toFixed(0);
   document.getElementById('kpi-visit').textContent = visit.toLocaleString('es-PE');
-  document.getElementById('kpi-ped').textContent = ped.toLocaleString('es-PE');
+  document.getElementById('kpi-ped').textContent   = ped.toLocaleString('es-PE');
 }
 
 function kpiClass(v,lo,hi) {
